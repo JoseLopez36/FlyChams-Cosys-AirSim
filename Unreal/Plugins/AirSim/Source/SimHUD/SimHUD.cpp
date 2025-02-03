@@ -13,7 +13,9 @@
 
 ASimHUD::ASimHUD()
 {
-    static ConstructorHelpers::FClassFinder<UUserWidget> hud_widget_class(TEXT("WidgetBlueprint'/AirSim/Blueprints/BP_SimHUDWidget'"));
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    static ConstructorHelpers::FClassFinder<UUserWidget> hud_widget_class(TEXT("WidgetBlueprint'/AirSim/Blueprints/BP_FlyChamsSimHUDWidget'"));
+    /* ------------------------------------------------------------------------------------------------------ */
     widget_class_ = hud_widget_class.Succeeded() ? hud_widget_class.Class : nullptr;
 }
 
@@ -48,6 +50,14 @@ void ASimHUD::Tick(float DeltaSeconds)
 {
     if (simmode_ && simmode_->EnableReport)
         widget_->updateDebugReport(simmode_->getDebugReport());
+
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    std::string new_vehicle = "AGENT05";
+    if (new_vehicle != current_vehicle_displayed_) {
+        current_vehicle_displayed_ = new_vehicle;
+        switchSubWindowsToVehicleViews(new_vehicle);
+    }
+    /* ------------------------------------------------------------------------------------------------------ */
 }
 
 void ASimHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -161,8 +171,12 @@ void ASimHUD::inputEventToggleSubwindow2()
 
 void ASimHUD::inputEventToggleAll()
 {
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
     getSubWindowSettings().at(0).visible = !getSubWindowSettings().at(0).visible;
-    getSubWindowSettings().at(1).visible = getSubWindowSettings().at(2).visible = getSubWindowSettings().at(0).visible;
+    for (int window_index = 1; window_index < AirSimSettings::kSubwindowCount; ++window_index) {
+        getSubWindowSettings().at(window_index).visible = getSubWindowSettings().at(0).visible;
+    }
+    /* ------------------------------------------------------------------------------------------------------ */
     updateWidgetSubwindowVisibility();
 }
 
@@ -324,14 +338,12 @@ void ASimHUD::initializeSubWindows()
     if (default_vehicle_sim_api) {
         auto camera_count = default_vehicle_sim_api->getCameraCount();
 
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
         //setup defaults
-        if (camera_count > 0) {
-            subwindow_cameras_[0] = default_vehicle_sim_api->getCamera("");
-            subwindow_cameras_[1] = default_vehicle_sim_api->getCamera(""); //camera_count > 3 ? 3 : 0
-            subwindow_cameras_[2] = default_vehicle_sim_api->getCamera(""); //camera_count > 4 ? 4 : 0
+        for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; ++window_index) {
+            subwindow_cameras_[window_index] = nullptr;
         }
-        else
-            subwindow_cameras_[0] = subwindow_cameras_[1] = subwindow_cameras_[2] = nullptr;
+        /* ------------------------------------------------------------------------------------------------------ */
     }
 
     for (const auto& setting : getSubWindowSettings()) {
@@ -408,3 +420,63 @@ bool ASimHUD::readSettingsTextFromFile(const FString& settingsFilepath, std::str
 
     return found;
 }
+
+/* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+void ASimHUD::switchSubWindowsToVehicleViews(const std::string& vehicle_name)
+{
+    if (!simmode_)
+        return;
+
+    auto vehicle_sim_api = simmode_->getVehicleSimApi(vehicle_name);
+
+    if (vehicle_sim_api) {
+        // Get vehicle camera names
+        std::string agent_view_camera_name = "";
+        std::vector<std::string> camera_names;
+        for (const auto &[camera_name, camera] : vehicle_sim_api->getVehicleSetting()->cameras) {
+            if (camera_name.rfind("HEAD", 0) == 0)
+                camera_names.push_back(camera_name);
+            if (camera_name.rfind("AgentView", 0) == 0)
+                agent_view_camera_name = camera_name;
+        }
+
+        auto camera_count = static_cast<int>(camera_names.size());
+
+        // Setup static sub-windows
+        const auto &settings = getSubWindowSettings();
+        // Scene view
+        subwindow_cameras_[0] = simmode_->getCamera(msr::airlib::CameraDetails(settings[0].camera_name, settings[0].vehicle_name));
+        // Agent view
+        APIPCamera* agent_view = vehicle_sim_api->getCamera(agent_view_camera_name);
+        subwindow_cameras_[1] = agent_view;
+        // Map view
+        subwindow_cameras_[2] = nullptr;
+        // Telemetry view
+        subwindow_cameras_[3] = nullptr;
+        // Agent cameras
+        if (camera_count > 0) {
+            for (int window_index = 0; window_index < camera_count; window_index++) {
+                APIPCamera* camera = vehicle_sim_api->getCamera(camera_names[window_index]);
+                subwindow_cameras_[4 + window_index] = camera;
+            }
+        }
+        for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; window_index++) {
+            APIPCamera* camera = subwindow_cameras_[window_index];
+            if (camera) {
+                camera->setCameraTypeEnabled(msr::airlib::ImageCaptureBase::ImageType::Scene, true, "");
+                camera->setCameraTypeUpdate(msr::airlib::ImageCaptureBase::ImageType::Scene, false, "");
+            }
+        }
+
+        // Update sub-windows
+        for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; ++window_index) {
+            APIPCamera* camera = subwindow_cameras_[window_index];
+            ImageType camera_type = getSubWindowSettings().at(window_index).image_type;
+            if (camera)
+                widget_->setSubwindowVisibility(window_index, true, camera->getRenderTarget(msr::airlib::ImageCaptureBase::ImageType::Scene, false, ""));
+            else
+                widget_->setSubwindowVisibility(window_index, false, nullptr);
+        }
+    }
+}
+/* ------------------------------------------------------------------------------------------------------ */

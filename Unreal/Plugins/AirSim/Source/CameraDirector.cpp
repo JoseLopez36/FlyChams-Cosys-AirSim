@@ -350,9 +350,9 @@ void ACameraDirector::disableCameras(bool fpv, bool backup, bool front)
 
 void ACameraDirector::notifyViewModeChanged()
 {
-    bool nodisplay = ECameraDirectorMode::CAMERA_DIRECTOR_MODE_NODISPLAY == mode_;
+    //bool nodisplay = ECameraDirectorMode::CAMERA_DIRECTOR_MODE_NODISPLAY == mode_;
 
-    UWorld* world = GetWorld();
-    UGameViewportClient* gameViewport = world->GetGameViewport();
-    gameViewport->bDisableWorldRendering = nodisplay;
+    //UWorld* world = GetWorld();
+    //UGameViewportClient* gameViewport = world->GetGameViewport();
+    //gameViewport->bDisableWorldRendering = nodisplay;
 }

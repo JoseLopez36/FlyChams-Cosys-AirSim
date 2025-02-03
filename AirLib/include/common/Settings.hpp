@@ -46,11 +46,22 @@ namespace airlib
 
         std::string getFullFilePath() { return full_filepath_; }
 
+        /* ------------------------------------------ FLYINGCHAMELEONS ------------------------------------------ */
         static std::string getUserDirectoryFullPath(std::string fileName)
         {
-            std::string path = common_utils::FileSystem::getAppDataFolder();
+            // std::string path = common_utils::FileSystem::getAppDataFolder();
+     
+            // Get the FLYCHAMS_PATH environment variable
+            const char* env_path = std::getenv("FLYCHAMS_PATH");
+            std::string path;
+            if (env_path != nullptr)
+                path = common_utils::FileSystem::combine(std::string(env_path), "config");
+            else
+                path = common_utils::FileSystem::getAppDataFolder();
+
             return common_utils::FileSystem::combine(path, fileName);
         }
+        /* ------------------------------------------------------------------------------------------------------ */
 
         static std::string getExecutableFullPath(std::string fileName)
         {

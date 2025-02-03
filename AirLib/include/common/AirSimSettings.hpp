@@ -27,7 +27,9 @@ namespace airlib
         typedef ImageCaptureBase::ImageType ImageType;
 
     public: //types
-        static constexpr int kSubwindowCount = 3; //must be >= 3 for now
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        static constexpr int kSubwindowCount = 9; //must be >= 3 for now
+        /* ------------------------------------------------------------------------------------------------------ */
         static constexpr char const* kVehicleTypePX4 = "px4multirotor";
         static constexpr char const* kVehicleTypeArduCopterSolo = "arducoptersolo";
         static constexpr char const* kVehicleTypeSimpleFlight = "simpleflight";
@@ -1437,14 +1439,18 @@ namespace airlib
         static void initializeSubwindowSettings(std::vector<SubwindowSetting>& subwindow_settings)
         {
             subwindow_settings.clear();
-            subwindow_settings.push_back(SubwindowSetting(0, ImageType::DepthVis, false, "", "", "")); //depth
-            subwindow_settings.push_back(SubwindowSetting(1, ImageType::Segmentation, false, "", "", "")); //seg
-            subwindow_settings.push_back(SubwindowSetting(2, ImageType::Scene, false, "", "", "")); //vis
+            /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+            for (int i = 0; i < kSubwindowCount; i++)
+            {
+                subwindow_settings.push_back(SubwindowSetting(i, ImageType::Scene, false, "", "", "")); //vis
+            }
+            /* ------------------------------------------------------------------------------------------------------ */
         }
 
         void loadOtherSettings(const Settings& settings_json)
         {
-            //by default we spawn server at local endpoint. Do not use 127.0.0.1 as default below
+            //by default we 
+            //  server at local endpoint. Do not use 127.0.0.1 as default below
             //because for docker container default is 0.0.0.0 and people get really confused why things
             //don't work
             api_server_address = settings_json.getString("LocalHostIp", "");

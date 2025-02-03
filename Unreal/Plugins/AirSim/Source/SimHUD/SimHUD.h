@@ -63,6 +63,11 @@ private:
 
     static FString getLaunchPath(const std::string& filename);
 
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    std::string current_vehicle_displayed_ = "";
+    void switchSubWindowsToVehicleViews(const std::string &vehicle_name);
+    /* ------------------------------------------------------------------------------------------------------ */
+
 private:
     typedef common_utils::Utils Utils;
     UClass* widget_class_;
