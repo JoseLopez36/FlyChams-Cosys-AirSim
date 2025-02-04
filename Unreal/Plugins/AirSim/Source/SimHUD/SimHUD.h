@@ -39,6 +39,18 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void Tick(float DeltaSeconds) override;
 
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    // FlyChams APIs
+    void setAgentSubWindows(const std::string& vehicle_name);
+    void setSubWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name);
+    void setSubWindowImageWithCropping(int window_index, int x, int y, int w, int h, const std::string& vehicle_name, const std::string& camera_name);
+    void drawTargetsInMap(const std::vector<int>& x, const std::vector<int>& y);
+    void drawClustersInMap(const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& r);
+    void drawAgentsInMap(const std::vector<int>& x, const std::vector<int>& y);
+    void drawTargetsInSubWindow(int window_index, const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& w, const std::vector<int>& h);
+    void drawClustersInSubWindow(int window_index, const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& r);
+    /* ------------------------------------------------------------------------------------------------------ */
+
 protected:
     virtual void setupInputBindings();
     void toggleRecordHandler();
@@ -64,8 +76,9 @@ private:
     static FString getLaunchPath(const std::string& filename);
 
     /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
-    std::string current_vehicle_displayed_ = "";
-    void switchSubWindowsToVehicleViews(const std::string &vehicle_name);
+    void updateCameraType(APIPCamera* camera);
+    void updateSubWindow(int window_index);
+    void updateSubWindowWithCropping(int window_index, int x, int y, int w, int h);
     /* ------------------------------------------------------------------------------------------------------ */
 
 private:

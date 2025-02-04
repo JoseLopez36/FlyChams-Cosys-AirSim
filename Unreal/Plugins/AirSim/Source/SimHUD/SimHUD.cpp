@@ -34,6 +34,11 @@ void ASimHUD::BeginPlay()
         setUnrealEngineSettings();
         createSimMode();
         createMainWidget();
+
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        setAgentSubWindows("");
+        /* ------------------------------------------------------------------------------------------------------ */
+
         setupInputBindings();
         if (simmode_)
             simmode_->startApiServer();
@@ -50,14 +55,6 @@ void ASimHUD::Tick(float DeltaSeconds)
 {
     if (simmode_ && simmode_->EnableReport)
         widget_->updateDebugReport(simmode_->getDebugReport());
-
-    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
-    std::string new_vehicle = "AGENT05";
-    if (new_vehicle != current_vehicle_displayed_) {
-        current_vehicle_displayed_ = new_vehicle;
-        switchSubWindowsToVehicleViews(new_vehicle);
-    }
-    /* ------------------------------------------------------------------------------------------------------ */
 }
 
 void ASimHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -422,8 +419,14 @@ bool ASimHUD::readSettingsTextFromFile(const FString& settingsFilepath, std::str
 }
 
 /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
-void ASimHUD::switchSubWindowsToVehicleViews(const std::string& vehicle_name)
+// Public API methods
+void ASimHUD::setAgentSubWindows(const std::string& vehicle_name)
 {
+    // Reset cameras
+    for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; window_index++) {
+        subwindow_cameras_[window_index] = nullptr;
+    }
+
     if (!simmode_)
         return;
 
@@ -460,23 +463,166 @@ void ASimHUD::switchSubWindowsToVehicleViews(const std::string& vehicle_name)
                 subwindow_cameras_[4 + window_index] = camera;
             }
         }
-        for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; window_index++) {
-            APIPCamera* camera = subwindow_cameras_[window_index];
-            if (camera) {
-                camera->setCameraTypeEnabled(msr::airlib::ImageCaptureBase::ImageType::Scene, true, "");
-                camera->setCameraTypeUpdate(msr::airlib::ImageCaptureBase::ImageType::Scene, false, "");
-            }
-        }
 
         // Update sub-windows
-        for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; ++window_index) {
+        for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; window_index++) {
             APIPCamera* camera = subwindow_cameras_[window_index];
-            ImageType camera_type = getSubWindowSettings().at(window_index).image_type;
-            if (camera)
-                widget_->setSubwindowVisibility(window_index, true, camera->getRenderTarget(msr::airlib::ImageCaptureBase::ImageType::Scene, false, ""));
-            else
-                widget_->setSubwindowVisibility(window_index, false, nullptr);
+            updateCameraType(camera);
+            updateSubWindow(window_index);
         }
+    }
+}
+
+void ASimHUD::setSubWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name)
+{
+    if (window_index >= AirSimSettings::kSubwindowCount)
+    {
+        UAirBlueprintLib::LogMessageString("Invalid window index ", std::to_string(window_index).c_str(), LogDebugLevel::Failure);
+        return;
+    }
+
+    if (!simmode_)
+        return;
+
+    auto vehicle_sim_api = simmode_->getVehicleSimApi(vehicle_name);
+
+    // Get and assign camera
+    APIPCamera* camera = vehicle_sim_api->getCamera(camera_name);
+    subwindow_cameras_[window_index] = camera;
+
+    // Update camera type
+    updateCameraType(camera);
+
+    // Update sub-window
+    updateSubWindow(window_index);
+}
+
+void ASimHUD::setSubWindowImageWithCropping(int window_index, int x, int y, int w, int h, const std::string& vehicle_name, const std::string& camera_name)
+{
+    if (window_index >= AirSimSettings::kSubwindowCount)
+    {
+        UAirBlueprintLib::LogMessageString("Invalid window index ", std::to_string(window_index).c_str(), LogDebugLevel::Failure);
+        return;
+    }
+
+    if (!simmode_)
+        return;
+
+    auto vehicle_sim_api = simmode_->getVehicleSimApi(vehicle_name);
+
+    // Get and assign camera
+    APIPCamera* camera = vehicle_sim_api->getCamera(camera_name);
+    subwindow_cameras_[window_index] = camera;
+
+    // Update camera type
+    updateCameraType(camera);
+
+    // Update sub-window
+    updateSubWindowWithCropping(window_index, x, y, w, h);
+}
+
+void ASimHUD::drawTargetsInMap(const std::vector<int>& x, const std::vector<int>& y)
+{
+    TArray<int32> x_array;
+    TArray<int32> y_array;
+    for (size_t i = 0; i < x.size(); i++) {
+        x_array.Add(x[i]);
+        y_array.Add(y[i]);
+    }
+
+    widget_->drawTargetsInMap(x_array, y_array);
+}
+
+void ASimHUD::drawClustersInMap(const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& r)
+{
+    TArray<int32> x_array;
+    TArray<int32> y_array;
+    TArray<int32> r_array;
+    for (size_t i = 0; i < x.size(); i++) {
+        x_array.Add(x[i]);
+        y_array.Add(y[i]);
+        r_array.Add(r[i]);
+    }
+
+    widget_->drawClustersInMap(x_array, y_array, r_array);
+}
+
+void ASimHUD::drawAgentsInMap(const std::vector<int>& x, const std::vector<int>& y)
+{
+    TArray<int32> x_array;
+    TArray<int32> y_array;
+    for (size_t i = 0; i < x.size(); i++) {
+        x_array.Add(x[i]);
+        y_array.Add(y[i]);
+    }
+
+    widget_->drawAgentsInMap(x_array, y_array);
+}
+
+void ASimHUD::drawTargetsInSubWindow(int window_index, const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& w, const std::vector<int>& h)
+{
+    TArray<int32> x_array;
+    TArray<int32> y_array;
+    TArray<int32> w_array;
+    TArray<int32> h_array;
+    for (size_t i = 0; i < x.size(); i++) {
+        x_array.Add(x[i]);
+        y_array.Add(y[i]);
+        w_array.Add(w[i]);
+        h_array.Add(h[i]);
+    }
+
+    widget_->drawTargetsInSubWindow(window_index, x_array, y_array, w_array, h_array);
+}
+
+void ASimHUD::drawClustersInSubWindow(int window_index, const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& r)
+{
+    TArray<int32> x_array;
+    TArray<int32> y_array;
+    TArray<int32> r_array;
+    for (size_t i = 0; i < x.size(); i++) {
+        x_array.Add(x[i]);
+        y_array.Add(y[i]);
+        r_array.Add(r[i]);
+    }
+
+    widget_->drawClustersInSubWindow(window_index, x_array, y_array, r_array);
+}
+
+// Private methods
+void ASimHUD::updateSubWindow(int window_index)
+{
+    APIPCamera* camera = subwindow_cameras_[window_index];
+    ImageType camera_type = getSubWindowSettings().at(window_index).image_type;
+    std::string annotation_name = getSubWindowSettings().at(window_index).annotation_name;
+    if (camera) {
+        widget_->setSubwindowVisibility(window_index, true, camera->getRenderTarget(camera_type, false, annotation_name));
+    }
+    else {
+        widget_->setSubwindowVisibility(window_index, false, nullptr);
+        UAirBlueprintLib::LogMessageString("Invalid camera at window index ", std::to_string(window_index).c_str(), LogDebugLevel::Failure);
+    }
+}
+
+void ASimHUD::updateSubWindowWithCropping(int window_index, int x, int y, int w, int h)
+{
+    APIPCamera* camera = subwindow_cameras_[window_index];
+    ImageType camera_type = getSubWindowSettings().at(window_index).image_type;
+    std::string annotation_name = getSubWindowSettings().at(window_index).annotation_name;
+    if (camera) {
+        widget_->setSubwindowVisibilityWithCropping(window_index, true, x, y, w, h, camera->getRenderTarget(camera_type, false, annotation_name));
+    }
+    else {
+        widget_->setSubwindowVisibility(window_index, false, nullptr);
+        UAirBlueprintLib::LogMessageString("Invalid camera at window index ", std::to_string(window_index).c_str(), LogDebugLevel::Failure);
+    }
+}
+
+void ASimHUD::updateCameraType(APIPCamera* camera)
+{
+    if (camera) {
+        camera->setCameraTypeEnabled(msr::airlib::ImageCaptureBase::ImageType::Scene, true, "");
+        camera->setCameraTypeUpdate(msr::airlib::ImageCaptureBase::ImageType::Scene, false, "");
     }
 }
 /* ------------------------------------------------------------------------------------------------------ */

@@ -36,6 +36,21 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
     int getSubwindowVisibility(int window_index);
 
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
+    bool setSubwindowVisibilityWithCropping(int window_index, bool is_visible, int x, int y, int w, int h, UTextureRenderTarget2D* render_target);
+    UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
+    bool drawTargetsInMap(const TArray<int32> &x, const TArray<int32> &y);
+    UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
+    bool drawClustersInMap(const TArray<int32> &x, const TArray<int32> &y, const TArray<int32> &r);
+    UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
+    bool drawAgentsInMap(const TArray<int32> &x, const TArray<int32> &y);
+    UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
+    bool drawTargetsInSubWindow(int window_index, const TArray<int32> &x, const TArray<int32> &y, const TArray<int32> &w, const TArray<int32> &h);
+    UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
+    bool drawClustersInSubWindow(int window_index, const TArray<int32> &x, const TArray<int32> &y, const TArray<int32> &r);
+    /* ------------------------------------------------------------------------------------------------------ */
+
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
     bool setRecordButtonVisibility(bool is_visible);
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
