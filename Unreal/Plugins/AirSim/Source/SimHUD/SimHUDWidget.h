@@ -39,16 +39,22 @@ public:
     /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
     bool setSubwindowVisibilityWithCropping(int window_index, bool is_visible, int x, int y, int w, int h, UTextureRenderTarget2D* render_target);
+    // Draw control methods
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
-    bool drawTargetsInMap(const TArray<int32> &x, const TArray<int32> &y);
+    bool initializeSubwindowDraw(int window_index, int width, int height);
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
-    bool drawClustersInMap(const TArray<int32> &x, const TArray<int32> &y, const TArray<int32> &r);
+    bool beginSubwindowDraw(int window_index);
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
-    bool drawAgentsInMap(const TArray<int32> &x, const TArray<int32> &y);
+    bool endSubwindowDraw(int window_index);
+    // Draw methods
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
-    bool drawTargetsInSubWindow(int window_index, const TArray<int32> &x, const TArray<int32> &y, const TArray<int32> &w, const TArray<int32> &h);
+    bool drawSubwindowPoint(int window_index, const FVector2D& point, const FLinearColor& color, float size);
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
-    bool drawClustersInSubWindow(int window_index, const TArray<int32> &x, const TArray<int32> &y, const TArray<int32> &r);
+    bool drawSubwindowLine(int window_index, const FVector2D& point_a, const FVector2D& point_b, const FLinearColor& color, float thickness);
+    UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
+    bool drawSubwindowBox(int window_index, const FVector2D& corner, const FVector2D& size, const FLinearColor& color, float thickness);
+    UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")
+    bool drawSubwindowTag(int window_index, const FString& string, const FVector2D& position, const FLinearColor& text_color, const FLinearColor& fill_color, const FLinearColor& frame_color, float scale);
     /* ------------------------------------------------------------------------------------------------------ */
 
     UFUNCTION(BlueprintImplementableEvent, Category = "C++ Interface")

@@ -36,7 +36,11 @@ void ASimHUD::BeginPlay()
         createMainWidget();
 
         /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
-        setAgentSubWindows("");
+        // Disable visibility of every subwindow
+        for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; ++window_index) {
+            toggleSubwindowVisibility(window_index);
+        }
+        simInitializeSubwindowDraw(3, 1920, 1080);
         /* ------------------------------------------------------------------------------------------------------ */
 
         setupInputBindings();
@@ -55,6 +59,18 @@ void ASimHUD::Tick(float DeltaSeconds)
 {
     if (simmode_ && simmode_->EnableReport)
         widget_->updateDebugReport(simmode_->getDebugReport());
+
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    simBeginSubwindowDraw(3);
+    std::vector<msr::airlib::Vector2r> points = {
+        msr::airlib::Vector2r(300.0f, 100.0f), // Point 1
+        msr::airlib::Vector2r(100.0f, 200.0f), // Point 2
+        msr::airlib::Vector2r(899.0f, 300.0f)  // Point 3
+    };
+    std::vector<float> color_rgba = { 1.0f, 0.0f, 0.0f, 1.0f };
+    simDrawSubwindowPoints(3, points, color_rgba, 25.0f);
+    simEndSubwindowDraw(3);
+    /* ------------------------------------------------------------------------------------------------------ */
 }
 
 void ASimHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -420,60 +436,7 @@ bool ASimHUD::readSettingsTextFromFile(const FString& settingsFilepath, std::str
 
 /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
 // Public API methods
-void ASimHUD::setAgentSubWindows(const std::string& vehicle_name)
-{
-    // Reset cameras
-    for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; window_index++) {
-        subwindow_cameras_[window_index] = nullptr;
-    }
-
-    if (!simmode_)
-        return;
-
-    auto vehicle_sim_api = simmode_->getVehicleSimApi(vehicle_name);
-
-    if (vehicle_sim_api) {
-        // Get vehicle camera names
-        std::string agent_view_camera_name = "";
-        std::vector<std::string> camera_names;
-        for (const auto &[camera_name, camera] : vehicle_sim_api->getVehicleSetting()->cameras) {
-            if (camera_name.rfind("HEAD", 0) == 0)
-                camera_names.push_back(camera_name);
-            if (camera_name.rfind("AgentView", 0) == 0)
-                agent_view_camera_name = camera_name;
-        }
-
-        auto camera_count = static_cast<int>(camera_names.size());
-
-        // Setup static sub-windows
-        const auto &settings = getSubWindowSettings();
-        // Scene view
-        subwindow_cameras_[0] = simmode_->getCamera(msr::airlib::CameraDetails(settings[0].camera_name, settings[0].vehicle_name));
-        // Agent view
-        APIPCamera* agent_view = vehicle_sim_api->getCamera(agent_view_camera_name);
-        subwindow_cameras_[1] = agent_view;
-        // Map view
-        subwindow_cameras_[2] = nullptr;
-        // Telemetry view
-        subwindow_cameras_[3] = nullptr;
-        // Agent cameras
-        if (camera_count > 0) {
-            for (int window_index = 0; window_index < camera_count; window_index++) {
-                APIPCamera* camera = vehicle_sim_api->getCamera(camera_names[window_index]);
-                subwindow_cameras_[4 + window_index] = camera;
-            }
-        }
-
-        // Update sub-windows
-        for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; window_index++) {
-            APIPCamera* camera = subwindow_cameras_[window_index];
-            updateCameraType(camera);
-            updateSubWindow(window_index);
-        }
-    }
-}
-
-void ASimHUD::setSubWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name)
+void ASimHUD::simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner, const msr::airlib::Vector2r& crop_size)
 {
     if (window_index >= AirSimSettings::kSubwindowCount)
     {
@@ -489,107 +452,225 @@ void ASimHUD::setSubWindowImage(int window_index, const std::string& vehicle_nam
     // Get and assign camera
     APIPCamera* camera = vehicle_sim_api->getCamera(camera_name);
     subwindow_cameras_[window_index] = camera;
-
-    // Update camera type
-    updateCameraType(camera);
-
-    // Update sub-window
-    updateSubWindow(window_index);
-}
-
-void ASimHUD::setSubWindowImageWithCropping(int window_index, int x, int y, int w, int h, const std::string& vehicle_name, const std::string& camera_name)
-{
-    if (window_index >= AirSimSettings::kSubwindowCount)
-    {
-        UAirBlueprintLib::LogMessageString("Invalid window index ", std::to_string(window_index).c_str(), LogDebugLevel::Failure);
+    if (!camera) {
+        updateSubWindow(window_index);
         return;
     }
 
-    if (!simmode_)
-        return;
-
-    auto vehicle_sim_api = simmode_->getVehicleSimApi(vehicle_name);
-
-    // Get and assign camera
-    APIPCamera* camera = vehicle_sim_api->getCamera(camera_name);
-    subwindow_cameras_[window_index] = camera;
-
     // Update camera type
     updateCameraType(camera);
 
-    // Update sub-window
+    // Retrieve the image and crop dimensions
+    int image_width = camera->getParams().capture_settings[0].width;
+    int image_height = camera->getParams().capture_settings[0].height;
+    int x = static_cast<int>(crop_corner.x());
+    int y = static_cast<int>(crop_corner.y());
+    int w = static_cast<int>(crop_size.x());
+    int h = static_cast<int>(crop_size.y());
+
+    // Validate that x, y, w, h are within the image bounds
+    if (x < 0 || y < 0 || w < 0 || h < 0 || x + w > image_width || y + h > image_height)
+    {
+        UAirBlueprintLib::LogMessageString("Invalid cropping parameters: x=", std::to_string(x).c_str(),
+            LogDebugLevel::Failure);
+        UAirBlueprintLib::LogMessageString(" y=", std::to_string(y).c_str(), LogDebugLevel::Failure);
+        UAirBlueprintLib::LogMessageString(" w=", std::to_string(w).c_str(), LogDebugLevel::Failure);
+        UAirBlueprintLib::LogMessageString(" h=", std::to_string(h).c_str(), LogDebugLevel::Failure);
+        return;
+    }
+
+    // w == 0 or h == 0 is assumed as whole image
+    if (w == 0 || h == 0)
+    {
+        updateSubWindow(window_index);
+        return;
+    }
+
+    // If bounds are valid, update the sub-window with cropping
     updateSubWindowWithCropping(window_index, x, y, w, h);
 }
 
-void ASimHUD::drawTargetsInMap(const std::vector<int>& x, const std::vector<int>& y)
+void ASimHUD::simInitializeSubwindowDraw(int window_index, int width, int height)
 {
-    TArray<int32> x_array;
-    TArray<int32> y_array;
-    for (size_t i = 0; i < x.size(); i++) {
-        x_array.Add(x[i]);
-        y_array.Add(y[i]);
-    }
-
-    widget_->drawTargetsInMap(x_array, y_array);
+    widget_->initializeSubwindowDraw(window_index, width, height);
 }
 
-void ASimHUD::drawClustersInMap(const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& r)
+void ASimHUD::simBeginSubwindowDraw(int window_index)
 {
-    TArray<int32> x_array;
-    TArray<int32> y_array;
-    TArray<int32> r_array;
-    for (size_t i = 0; i < x.size(); i++) {
-        x_array.Add(x[i]);
-        y_array.Add(y[i]);
-        r_array.Add(r[i]);
-    }
-
-    widget_->drawClustersInMap(x_array, y_array, r_array);
+    widget_->beginSubwindowDraw(window_index);
 }
 
-void ASimHUD::drawAgentsInMap(const std::vector<int>& x, const std::vector<int>& y)
+void ASimHUD::simEndSubwindowDraw(int window_index)
 {
-    TArray<int32> x_array;
-    TArray<int32> y_array;
-    for (size_t i = 0; i < x.size(); i++) {
-        x_array.Add(x[i]);
-        y_array.Add(y[i]);
-    }
-
-    widget_->drawAgentsInMap(x_array, y_array);
+    widget_->endSubwindowDraw(window_index);
 }
 
-void ASimHUD::drawTargetsInSubWindow(int window_index, const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& w, const std::vector<int>& h)
+void ASimHUD::simDrawSubwindowPoints(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float size)
 {
-    TArray<int32> x_array;
-    TArray<int32> y_array;
-    TArray<int32> w_array;
-    TArray<int32> h_array;
-    for (size_t i = 0; i < x.size(); i++) {
-        x_array.Add(x[i]);
-        y_array.Add(y[i]);
-        w_array.Add(w[i]);
-        h_array.Add(h[i]);
+    // Validate color_rgba size
+    if (color_rgba.size() != 4) {
+        UAirBlueprintLib::LogMessageString("Invalid drawing color size for window ", std::to_string(window_index).c_str(), LogDebugLevel::Failure);
+        return;
     }
 
-    widget_->drawTargetsInSubWindow(window_index, x_array, y_array, w_array, h_array);
+    // Convert color_rgba to FLinearColor
+    FLinearColor color(color_rgba[0], color_rgba[1], color_rgba[2], color_rgba[3]);
+
+    // Draw each point
+    for (const auto& point : points) {
+        widget_->drawSubwindowPoint(
+            window_index, 
+            FVector2D(point.x(), point.y()), 
+            color,
+            size);
+    }
 }
 
-void ASimHUD::drawClustersInSubWindow(int window_index, const std::vector<int>& x, const std::vector<int>& y, const std::vector<int>& r)
+void ASimHUD::simDrawSubwindowLineStrip(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
 {
-    TArray<int32> x_array;
-    TArray<int32> y_array;
-    TArray<int32> r_array;
-    for (size_t i = 0; i < x.size(); i++) {
-        x_array.Add(x[i]);
-        y_array.Add(y[i]);
-        r_array.Add(r[i]);
+    // Validate color_rgba size
+    if (color_rgba.size() != 4) {
+        UAirBlueprintLib::LogMessageString("Invalid drawing color size for window " + std::to_string(window_index), "", LogDebugLevel::Failure);
+        return;
     }
 
-    widget_->drawClustersInSubWindow(window_index, x_array, y_array, r_array);
+    // Convert color_rgba to FLinearColor
+    FLinearColor color(color_rgba[0], color_rgba[1], color_rgba[2], color_rgba[3]);
+
+    // Draw consecutive lines (0-1, 1-2, 2-3, ...)
+    for (size_t i = 0; i < points.size() - 1; i++) {
+        const auto& point_a = points[i];
+        const auto& point_b = points[i + 1];
+
+        // Use the widget's drawSubwindowLine function
+        widget_->drawSubwindowLine(window_index,
+            FVector2D(point_a.x(), point_a.y()),
+            FVector2D(point_b.x(), point_b.y()),
+            color,
+            thickness);
+    }
+
+    // Draw the last line
+    const auto& point_a = points[points.size() - 1];
+    const auto& point_b = points[0];
+    widget_->drawSubwindowLine(
+        window_index,
+        FVector2D(point_a.x(), point_a.y()),
+        FVector2D(point_b.x(), point_b.y()),
+        color,
+        thickness);
+}
+
+void ASimHUD::simDrawSubwindowLineList(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
+{
+    // Validate color_rgba size
+    if (color_rgba.size() != 4) {
+        UAirBlueprintLib::LogMessageString("Invalid drawing color size for window " + std::to_string(window_index), "", LogDebugLevel::Failure);
+        return;
+    }
+
+    // Ensure there is an even number of points
+    if (points.size() % 2 != 0) {
+        UAirBlueprintLib::LogMessageString("Odd number of points provided for line list in window " + std::to_string(window_index), "", LogDebugLevel::Failure);
+        return;
+    }
+
+    // Convert color_rgba to FLinearColor
+    FLinearColor color(color_rgba[0], color_rgba[1], color_rgba[2], color_rgba[3]);
+
+    // Draw lines between pairs of points (0-1, 2-3, 4-5, ...)
+    for (size_t i = 0; i < points.size(); i += 2) {
+        const auto& point_a = points[i];
+        const auto& point_b = points[i + 1];
+
+        // Use the widget's drawSubwindowLine function
+        widget_->drawSubwindowLine(
+            window_index,
+            FVector2D(point_a.x(), point_a.y()),
+            FVector2D(point_b.x(), point_b.y()),
+            color,
+            thickness);
+    }
+}
+
+void ASimHUD::simDrawSubwindowBoxes(int window_index, const std::vector<msr::airlib::Vector2r>& corners, const std::vector<msr::airlib::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness)
+{
+    // Validate color_rgba size
+    if (color_rgba.size() != 4) {
+        UAirBlueprintLib::LogMessageString("Invalid drawing color size for window ", std::to_string(window_index).c_str(), LogDebugLevel::Failure);
+        return;
+    }
+
+    // Validate input vectors
+    if (corners.size() != sizes.size()) {
+        UAirBlueprintLib::LogMessageString("Mismatch between corners and sizes vectors for window " + std::to_string(window_index), "", LogDebugLevel::Failure);
+        return;
+    }
+
+    // Convert color_rgba to FLinearColor
+    FLinearColor color(color_rgba[0], color_rgba[1], color_rgba[2], color_rgba[3]);
+
+    // Draw each box
+    for (size_t i = 0; i < corners.size(); ++i) {
+        const auto& corner = corners[i];
+        const auto& size = sizes[i];
+        widget_->drawSubwindowBox(
+            window_index,
+            FVector2D(corner.x(), corner.y()),
+            FVector2D(size.x(), size.y()),
+            color,
+            thickness);
+    }
+}
+
+void ASimHUD::simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<msr::airlib::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale)
+{
+    // Validate color_rgba size
+    if (text_color_rgba.size() != 4 || fill_color_rgba.size() != 4 || frame_color_rgba.size() != 4) {
+        UAirBlueprintLib::LogMessageString("Invalid color size for window " + std::to_string(window_index), "", LogDebugLevel::Failure);
+        return;
+    }
+
+    // Ensure strings and positions have the same size
+    if (strings.size() != positions.size()) {
+        UAirBlueprintLib::LogMessageString("Mismatch between strings and positions vectors for window " + std::to_string(window_index), "", LogDebugLevel::Failure);
+        return;
+    }
+
+    // Convert colors to FLinearColor
+    FLinearColor text_color(text_color_rgba[0], text_color_rgba[1], text_color_rgba[2], text_color_rgba[3]);
+    FLinearColor fill_color(fill_color_rgba[0], fill_color_rgba[1], fill_color_rgba[2], fill_color_rgba[3]);
+    FLinearColor frame_color(frame_color_rgba[0], frame_color_rgba[1], frame_color_rgba[2], frame_color_rgba[3]);
+
+    // Draw each tag
+    for (size_t i = 0; i < strings.size(); ++i) {
+        const auto& string = strings[i];
+        const auto& position = positions[i];
+
+        // Convert std::string to FString
+        FString fstring(TCHAR_TO_UTF8(*FString(string.c_str())));
+
+        // Use the widget's drawSubwindowTag function
+        widget_->drawSubwindowTag(
+            window_index,
+            fstring,
+            FVector2D(position.x(), position.y()),
+            text_color,
+            fill_color,
+            frame_color,
+            scale);
+    }
 }
 
 // Private methods
+void ASimHUD::updateCameraType(APIPCamera* camera)
+{
+    if (camera) {
+        camera->setCameraTypeEnabled(msr::airlib::ImageCaptureBase::ImageType::Scene, true, "");
+        camera->setCameraTypeUpdate(msr::airlib::ImageCaptureBase::ImageType::Scene, false, "");
+    }
+}
+
 void ASimHUD::updateSubWindow(int window_index)
 {
     APIPCamera* camera = subwindow_cameras_[window_index];
@@ -615,14 +696,6 @@ void ASimHUD::updateSubWindowWithCropping(int window_index, int x, int y, int w,
     else {
         widget_->setSubwindowVisibility(window_index, false, nullptr);
         UAirBlueprintLib::LogMessageString("Invalid camera at window index ", std::to_string(window_index).c_str(), LogDebugLevel::Failure);
-    }
-}
-
-void ASimHUD::updateCameraType(APIPCamera* camera)
-{
-    if (camera) {
-        camera->setCameraTypeEnabled(msr::airlib::ImageCaptureBase::ImageType::Scene, true, "");
-        camera->setCameraTypeUpdate(msr::airlib::ImageCaptureBase::ImageType::Scene, false, "");
     }
 }
 /* ------------------------------------------------------------------------------------------------------ */
