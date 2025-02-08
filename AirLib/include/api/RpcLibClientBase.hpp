@@ -107,6 +107,19 @@ namespace airlib
         void simPlotTransforms(const vector<Pose>& poses, float scale, float thickness, float duration, bool is_persistent);
         void simPlotTransformsWithNames(const vector<Pose>& poses, const vector<std::string>& names, float tf_scale, float tf_thickness, float text_scale, const vector<float>& text_color_rgba, float duration);
 
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Drawing APIs ----------/
+        void simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const Vector2r& crop_corner = Vector2r(0.0, 0.0), const Vector2r& crop_size = Vector2r(0.0, 0.0));
+        void simInitializeSubwindowDraw(int window_index, int width, int height);
+        void simBeginSubwindowDraw(int window_index);
+        void simEndSubwindowDraw(int window_index);
+        void simDrawSubwindowPoints(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float size);
+        void simDrawSubwindowLineStrip(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float thickness);
+        void simDrawSubwindowLineList(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float thickness);
+        void simDrawSubwindowBoxes(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const vector<float>& color_rgba, float thickness);
+        void simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const vector<float>& text_color_rgba, const vector<float>& fill_color_rgba, const vector<float>& frame_color_rgba, float scale);
+        /* ------------------------------------------------------------------------------------------------------ */
+
         bool armDisarm(bool arm, const std::string& vehicle_name = "");
         bool isApiControlEnabled(const std::string& vehicle_name = "") const;
         void enableApiControl(bool is_enabled, const std::string& vehicle_name = "");

@@ -761,6 +761,90 @@ std::vector<WorldSimApi::MeshPositionVertexBuffersResponse> WorldSimApi::getMesh
     return responses;
 }
 
+/* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+//----------- Drawing APIs ----------/
+void WorldSimApi::simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner, const msr::airlib::Vector2r& crop_size)
+{
+    if (!sim_hud_) {
+        sim_hud_ = Cast<ASimHUD>(UGameplayStatics::GetActorOfClass(this->simmode_->GetWorld(), ASimHUD::StaticClass()));
+        if (sim_hud_) {
+            UE_LOG(LogTemp, Log, TEXT("Found ASimHUD Actor"));
+        }
+        else {
+            UE_LOG(LogTemp, Error, TEXT("No ASimHUD Actor found"));
+            return;
+        }
+    }
+
+    sim_hud_->simSetSubwindowImage(window_index, vehicle_name, camera_name, crop_corner, crop_size);
+}
+
+void WorldSimApi::simInitializeSubwindowDraw(int window_index, int width, int height)
+{
+    if (!sim_hud_) {
+        sim_hud_ = Cast<ASimHUD>(UGameplayStatics::GetActorOfClass(this->simmode_->GetWorld(), ASimHUD::StaticClass()));
+        if (sim_hud_) {
+            UE_LOG(LogTemp, Log, TEXT("Found ASimHUD Actor"));
+        }
+        else {
+            UE_LOG(LogTemp, Error, TEXT("No ASimHUD Actor found"));
+            return;
+        }
+    }
+
+    sim_hud_->simInitializeSubwindowDraw(window_index, width, height);
+}
+
+void WorldSimApi::simBeginSubwindowDraw(int window_index)
+{
+    if (sim_hud_) {
+        sim_hud_->simBeginSubwindowDraw(window_index);
+    }
+}
+
+void WorldSimApi::simEndSubwindowDraw(int window_index)
+{
+    if (sim_hud_) {
+        sim_hud_->simEndSubwindowDraw(window_index);
+    }
+}
+
+void WorldSimApi::simDrawSubwindowPoints(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float size)
+{
+    if (sim_hud_) {
+        sim_hud_->simDrawSubwindowPoints(window_index, points, color_rgba, size);
+    }
+}
+
+void WorldSimApi::simDrawSubwindowLineStrip(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
+{
+    if (sim_hud_) {
+        sim_hud_->simDrawSubwindowLineStrip(window_index, points, color_rgba, thickness);
+    }
+}
+
+void WorldSimApi::simDrawSubwindowLineList(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
+{
+    if (sim_hud_) {
+        sim_hud_->simDrawSubwindowLineList(window_index, points, color_rgba, thickness);
+    }
+}
+
+void WorldSimApi::simDrawSubwindowBoxes(int window_index, const std::vector<msr::airlib::Vector2r>& corners, const std::vector<msr::airlib::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness)
+{
+    if (sim_hud_) {
+        sim_hud_->simDrawSubwindowBoxes(window_index, corners, sizes, color_rgba, thickness);
+    }
+}
+
+void WorldSimApi::simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<msr::airlib::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale)
+{
+    if (sim_hud_) {
+        sim_hud_->simDrawSubwindowTags(window_index, strings, positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale);
+    }
+}
+/* ------------------------------------------------------------------------------------------------------ */
+
 // Recording APIs
 void WorldSimApi::startRecording()
 {

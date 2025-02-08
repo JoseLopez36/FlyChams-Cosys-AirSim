@@ -40,7 +40,6 @@ void ASimHUD::BeginPlay()
         for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; ++window_index) {
             toggleSubwindowVisibility(window_index);
         }
-        simInitializeSubwindowDraw(3, 1920, 1080);
         /* ------------------------------------------------------------------------------------------------------ */
 
         setupInputBindings();
@@ -59,18 +58,6 @@ void ASimHUD::Tick(float DeltaSeconds)
 {
     if (simmode_ && simmode_->EnableReport)
         widget_->updateDebugReport(simmode_->getDebugReport());
-
-    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
-    simBeginSubwindowDraw(3);
-    std::vector<msr::airlib::Vector2r> points = {
-        msr::airlib::Vector2r(300.0f, 100.0f), // Point 1
-        msr::airlib::Vector2r(100.0f, 200.0f), // Point 2
-        msr::airlib::Vector2r(899.0f, 300.0f)  // Point 3
-    };
-    std::vector<float> color_rgba = { 1.0f, 0.0f, 0.0f, 1.0f };
-    simDrawSubwindowPoints(3, points, color_rgba, 25.0f);
-    simEndSubwindowDraw(3);
-    /* ------------------------------------------------------------------------------------------------------ */
 }
 
 void ASimHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)

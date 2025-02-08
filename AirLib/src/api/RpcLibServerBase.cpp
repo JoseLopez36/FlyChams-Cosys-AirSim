@@ -519,6 +519,59 @@ namespace airlib
             getWorldSimApi()->simPlotTransformsWithNames(conv_poses, names, tf_scale, tf_thickness, text_scale, text_color_rgba, duration);
         });
 
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Drawing APIs ----------/
+        pimpl_->server.bind("simSetSubwindowImage", [&](int window_index, const std::string& vehicle_name, const std::string& camera_name, const RpcLibAdaptorsBase::Vector2r& crop_corner, const RpcLibAdaptorsBase::Vector2r& crop_size) -> void {
+            Vector2r conv_crop_corner, conv_crop_size;
+            conv_crop_corner = crop_corner.to();
+            conv_crop_size = crop_size.to();
+            getWorldSimApi()->simSetSubwindowImage(window_index, vehicle_name, camera_name, conv_crop_corner, conv_crop_size);
+        });
+
+        pimpl_->server.bind("simInitializeSubwindowDraw", [&](int window_index, int width, int height) -> void {
+            getWorldSimApi()->simInitializeSubwindowDraw(window_index, width, height);
+        });
+
+        pimpl_->server.bind("simBeginSubwindowDraw", [&](int window_index) -> void {
+            getWorldSimApi()->simBeginSubwindowDraw(window_index);
+        });
+
+        pimpl_->server.bind("simEndSubwindowDraw", [&](int window_index) -> void {
+            getWorldSimApi()->simEndSubwindowDraw(window_index);
+        });
+
+        pimpl_->server.bind("simDrawSubwindowPoints", [&](int window_index, const std::vector<RpcLibAdaptorsBase::Vector2r>& points, const vector<float>& color_rgba, float size) -> void {
+            vector<Vector2r> conv_points;
+            RpcLibAdaptorsBase::to(points, conv_points);
+            getWorldSimApi()->simDrawSubwindowPoints(window_index, conv_points, color_rgba, size);
+        });
+
+        pimpl_->server.bind("simDrawSubwindowLineStrip", [&](int window_index, const std::vector<RpcLibAdaptorsBase::Vector2r>& points, const vector<float>& color_rgba, float thickness) -> void {
+            vector<Vector2r> conv_points;
+            RpcLibAdaptorsBase::to(points, conv_points);
+            getWorldSimApi()->simDrawSubwindowLineStrip(window_index, conv_points, color_rgba, thickness);
+        });
+
+        pimpl_->server.bind("simDrawSubwindowLineList", [&](int window_index, const std::vector<RpcLibAdaptorsBase::Vector2r>& points, const vector<float>& color_rgba, float thickness) -> void {
+            vector<Vector2r> conv_points;
+            RpcLibAdaptorsBase::to(points, conv_points);
+            getWorldSimApi()->simDrawSubwindowLineList(window_index, conv_points, color_rgba, thickness);
+        });
+
+        pimpl_->server.bind("simDrawSubwindowBoxes", [&](int window_index, const std::vector<RpcLibAdaptorsBase::Vector2r>& corners, const std::vector<RpcLibAdaptorsBase::Vector2r>& sizes, const vector<float>& color_rgba, float thickness) -> void {
+            vector<Vector2r> conv_corners, conv_sizes;
+            RpcLibAdaptorsBase::to(corners, conv_corners);
+            RpcLibAdaptorsBase::to(sizes, conv_sizes);
+            getWorldSimApi()->simDrawSubwindowBoxes(window_index, conv_corners, conv_sizes, color_rgba, thickness);
+        });
+
+        pimpl_->server.bind("simDrawSubwindowTags", [&](int window_index, const std::vector<std::string>& strings, const std::vector<RpcLibAdaptorsBase::Vector2r>& positions, const vector<float>& text_color_rgba, const vector<float>& fill_color_rgba, const vector<float>& frame_color_rgba, float scale) -> void {
+            vector<Vector2r> conv_positions;
+            RpcLibAdaptorsBase::to(positions, conv_positions);
+            getWorldSimApi()->simDrawSubwindowTags(window_index, strings, conv_positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale);
+        });
+        /* ------------------------------------------------------------------------------------------------------ */
+
         pimpl_->server.bind("simGetGroundTruthKinematics", [&](const std::string& vehicle_name) -> RpcLibAdaptorsBase::KinematicsState {
             const Kinematics::State& result = *getVehicleSimApi(vehicle_name)->getGroundTruthKinematics();
             return RpcLibAdaptorsBase::KinematicsState(result);

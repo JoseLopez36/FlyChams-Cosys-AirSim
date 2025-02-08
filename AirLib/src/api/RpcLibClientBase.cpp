@@ -525,6 +525,68 @@ __pragma(warning(disable : 4239))
             pimpl_->client.call("simPlotTransformsWithNames", conv_poses, names, tf_scale, tf_thickness, text_scale, text_color_rgba, duration);
         }
 
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Drawing APIs ----------/
+        void RpcLibClientBase::simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const Vector2r& crop_corner, const Vector2r& crop_size)
+        {
+            RpcLibAdaptorsBase::Vector2r conv_crop_corner, conv_crop_size;
+            conv_crop_corner = RpcLibAdaptorsBase::Vector2r(crop_corner);
+            conv_crop_size = RpcLibAdaptorsBase::Vector2r(crop_size);
+            pimpl_->client.call("simSetSubwindowImage", window_index, vehicle_name, camera_name, conv_crop_corner, conv_crop_size);
+        }
+
+        void RpcLibClientBase::simInitializeSubwindowDraw(int window_index, int width, int height)
+        {
+            pimpl_->client.call("simInitializeSubwindowDraw", window_index, width, height);
+        }
+
+        void RpcLibClientBase::simBeginSubwindowDraw(int window_index)
+        {
+            pimpl_->client.call("simBeginSubwindowDraw", window_index);
+        }
+
+        void RpcLibClientBase::simEndSubwindowDraw(int window_index)
+        {
+            pimpl_->client.call("simEndSubwindowDraw", window_index);
+        }
+
+        void RpcLibClientBase::simDrawSubwindowPoints(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float size)
+        {
+            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
+            RpcLibAdaptorsBase::from(points, conv_points);
+            pimpl_->client.call("simDrawSubwindowPoints", window_index, conv_points, color_rgba, size);
+        }
+
+        void RpcLibClientBase::simDrawSubwindowLineStrip(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float thickness)
+        {
+            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
+            RpcLibAdaptorsBase::from(points, conv_points);
+            pimpl_->client.call("simDrawSubwindowLineStrip", window_index, conv_points, color_rgba, thickness);
+        }
+
+        void RpcLibClientBase::simDrawSubwindowLineList(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float thickness)
+        {
+            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
+            RpcLibAdaptorsBase::from(points, conv_points);
+            pimpl_->client.call("simDrawSubwindowLineList", window_index, conv_points, color_rgba, thickness);
+        }
+
+        void RpcLibClientBase::simDrawSubwindowBoxes(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const vector<float>& color_rgba, float thickness)
+        {
+            vector<RpcLibAdaptorsBase::Vector2r> conv_corners, conv_sizes;
+            RpcLibAdaptorsBase::from(corners, conv_corners);
+            RpcLibAdaptorsBase::from(sizes, conv_sizes);
+            pimpl_->client.call("simDrawSubwindowBoxes", window_index, conv_corners, conv_sizes, color_rgba, thickness);
+        }
+
+        void RpcLibClientBase::simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const vector<float>& text_color_rgba, const vector<float>& fill_color_rgba, const vector<float>& frame_color_rgba, float scale)
+        {
+            vector<RpcLibAdaptorsBase::Vector2r> conv_positions;
+            RpcLibAdaptorsBase::from(positions, conv_positions);
+            pimpl_->client.call("simDrawSubwindowTags", window_index, strings, conv_positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale);
+        }
+        /* ------------------------------------------------------------------------------------------------------ */
+
         bool RpcLibClientBase::simIsPaused() const
         {
             return pimpl_->client.call("simIsPaused").as<bool>();
