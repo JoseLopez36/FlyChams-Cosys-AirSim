@@ -39,7 +39,7 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void Tick(float DeltaSeconds) override;
 
-    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
     //----------- Drawing APIs ----------/
     void simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner = msr::airlib::Vector2r(0.0, 0.0), const msr::airlib::Vector2r& crop_size = msr::airlib::Vector2r(0.0, 0.0));
     // Initialize draw with given size

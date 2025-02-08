@@ -20,6 +20,11 @@
 #include "UnrealImageCapture.h"
 #include "Beacons/TemplateBeacon.h"
 #include "Beacons/FiducialBeacon.h"
+
+/* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+#include "GameFramework/HUD.h"
+/* ------------------------------------------------------------------------------------------------------ */
+
 #include "SimModeBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelLoaded);
@@ -151,6 +156,13 @@ public:
     //additional overridable methods
     virtual std::string getDebugReport();
     virtual ECameraDirectorMode getInitialViewMode() const;
+
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    virtual AHUD* getSimHud() 
+    {
+        return sim_hud_;
+    }
+    /* ------------------------------------------------------------------------------------------------------ */
 
     virtual bool isPaused() const;
     virtual void pause(bool is_paused);
@@ -319,6 +331,10 @@ private:
 
     FObjectAnnotator instance_segmentation_annotator_;
     TMap<FString, FObjectAnnotator> annotators_;
+
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    AHUD* sim_hud_;
+    /* ------------------------------------------------------------------------------------------------------ */
    
 private:
     void InitializeInstanceSegmentation();

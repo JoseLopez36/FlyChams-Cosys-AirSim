@@ -172,6 +172,11 @@ void ASimModeBase::BeginPlay()
     loading_screen_widget_->AddToViewport();
     loading_screen_widget_->SetVisibility(ESlateVisibility::Hidden);
 
+    /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+    APlayerController* player_controller = this->GetWorld()->GetFirstPlayerController();
+    sim_hud_ = player_controller->GetHUD();
+    /* ------------------------------------------------------------------------------------------------------ */
+
     InitializeInstanceSegmentation();
 
     InitializeAnnotation();

@@ -761,87 +761,130 @@ std::vector<WorldSimApi::MeshPositionVertexBuffersResponse> WorldSimApi::getMesh
     return responses;
 }
 
-/* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+/* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
 //----------- Drawing APIs ----------/
 void WorldSimApi::simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner, const msr::airlib::Vector2r& crop_size)
 {
-    if (!sim_hud_) {
-        sim_hud_ = Cast<ASimHUD>(UGameplayStatics::GetActorOfClass(this->simmode_->GetWorld(), ASimHUD::StaticClass()));
-        if (sim_hud_) {
-            UE_LOG(LogTemp, Log, TEXT("Found ASimHUD Actor"));
-        }
-        else {
-            UE_LOG(LogTemp, Error, TEXT("No ASimHUD Actor found"));
-            return;
-        }
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
 
-    sim_hud_->simSetSubwindowImage(window_index, vehicle_name, camera_name, crop_corner, crop_size);
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, &vehicle_name, &camera_name, &crop_corner, &crop_size]() {
+            sim_hud->simSetSubwindowImage(
+                window_index, 
+                vehicle_name, 
+                camera_name, 
+                crop_corner, 
+                crop_size);
+        },
+        true);
 }
 
 void WorldSimApi::simInitializeSubwindowDraw(int window_index, int width, int height)
 {
-    if (!sim_hud_) {
-        sim_hud_ = Cast<ASimHUD>(UGameplayStatics::GetActorOfClass(this->simmode_->GetWorld(), ASimHUD::StaticClass()));
-        if (sim_hud_) {
-            UE_LOG(LogTemp, Log, TEXT("Found ASimHUD Actor"));
-        }
-        else {
-            UE_LOG(LogTemp, Error, TEXT("No ASimHUD Actor found"));
-            return;
-        }
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
 
-    sim_hud_->simInitializeSubwindowDraw(window_index, width, height);
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, width, height]() {
+        sim_hud->simInitializeSubwindowDraw(
+            window_index,
+            width,
+            height);
+        },
+        true);
 }
 
 void WorldSimApi::simBeginSubwindowDraw(int window_index)
 {
-    if (sim_hud_) {
-        sim_hud_->simBeginSubwindowDraw(window_index);
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
+
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index]() {
+        sim_hud->simBeginSubwindowDraw(
+            window_index);
+        },
+        true);
 }
 
 void WorldSimApi::simEndSubwindowDraw(int window_index)
 {
-    if (sim_hud_) {
-        sim_hud_->simEndSubwindowDraw(window_index);
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
+
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index]() {
+        sim_hud->simEndSubwindowDraw(
+            window_index);
+        },
+        true);
 }
 
 void WorldSimApi::simDrawSubwindowPoints(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float size)
 {
-    if (sim_hud_) {
-        sim_hud_->simDrawSubwindowPoints(window_index, points, color_rgba, size);
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
+
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, &points, &color_rgba, size]() {
+        sim_hud->simDrawSubwindowPoints(
+            window_index,
+            points,
+            color_rgba,
+            size);
+        },
+        true);
 }
 
 void WorldSimApi::simDrawSubwindowLineStrip(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
 {
-    if (sim_hud_) {
-        sim_hud_->simDrawSubwindowLineStrip(window_index, points, color_rgba, thickness);
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
+
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, &points, &color_rgba, thickness]() {
+        sim_hud->simDrawSubwindowLineStrip(
+            window_index,
+            points,
+            color_rgba,
+            thickness);
+        },
+        true);
 }
 
 void WorldSimApi::simDrawSubwindowLineList(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
 {
-    if (sim_hud_) {
-        sim_hud_->simDrawSubwindowLineList(window_index, points, color_rgba, thickness);
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
+
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, &points, &color_rgba, thickness]() {
+        sim_hud->simDrawSubwindowLineList(
+            window_index,
+            points,
+            color_rgba,
+            thickness);
+        },
+        true);
 }
 
 void WorldSimApi::simDrawSubwindowBoxes(int window_index, const std::vector<msr::airlib::Vector2r>& corners, const std::vector<msr::airlib::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness)
 {
-    if (sim_hud_) {
-        sim_hud_->simDrawSubwindowBoxes(window_index, corners, sizes, color_rgba, thickness);
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
+
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, &corners, &sizes, &color_rgba, thickness]() {
+        sim_hud->simDrawSubwindowBoxes(
+            window_index,
+            corners,
+            sizes,
+            color_rgba,
+            thickness);
+        },
+        true);
 }
 
 void WorldSimApi::simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<msr::airlib::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale)
 {
-    if (sim_hud_) {
-        sim_hud_->simDrawSubwindowTags(window_index, strings, positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale);
-    }
+    ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
+
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, &strings, &positions, &text_color_rgba, &fill_color_rgba, &frame_color_rgba, scale]() {
+        sim_hud->simDrawSubwindowTags(
+            window_index,
+            strings,
+            positions,
+            text_color_rgba,
+            fill_color_rgba,
+            frame_color_rgba,
+            scale);
+        },
+        true);
 }
 /* ------------------------------------------------------------------------------------------------------ */
 
