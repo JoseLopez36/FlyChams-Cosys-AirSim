@@ -525,65 +525,92 @@ __pragma(warning(disable : 4239))
             pimpl_->client.call("simPlotTransformsWithNames", conv_poses, names, tf_scale, tf_thickness, text_scale, text_color_rgba, duration);
         }
 
-        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Image APIs ----------/
+        void RpcLibClientBase::setMultiWindowImage(const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<msr::airlib::Vector2r>& crop_corners, const std::vector<msr::airlib::Vector2r>& crop_sizes)
+        {
+            vector<RpcLibAdaptorsBase::Vector2r> conv_crop_corners, conv_crop_sizes;
+            RpcLibAdaptorsBase::from(crop_corners, conv_crop_corners);
+            RpcLibAdaptorsBase::from(crop_sizes, conv_crop_sizes);
+            pimpl_->client.call("setMultiWindowImage", window_indices, vehicle_names, camera_names, conv_crop_corners, conv_crop_sizes);
+        }
+
         //----------- Drawing APIs ----------/
-        void RpcLibClientBase::simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const Vector2r& crop_corner, const Vector2r& crop_size)
+        void RpcLibClientBase::initMultiWindowDraw(const std::vector<int>& window_indices, const std::vector<msr::airlib::Vector2r>& window_sizes)
         {
-            RpcLibAdaptorsBase::Vector2r conv_crop_corner, conv_crop_size;
-            conv_crop_corner = RpcLibAdaptorsBase::Vector2r(crop_corner);
-            conv_crop_size = RpcLibAdaptorsBase::Vector2r(crop_size);
-            pimpl_->client.call("simSetSubwindowImage", window_index, vehicle_name, camera_name, conv_crop_corner, conv_crop_size);
+            vector<RpcLibAdaptorsBase::Vector2r> conv_window_sizes;
+            RpcLibAdaptorsBase::from(window_sizes, conv_window_sizes);
+            pimpl_->client.call("initMultiWindowDraw", window_indices, conv_window_sizes);
         }
 
-        void RpcLibClientBase::simInitializeSubwindowDraw(int window_index, int width, int height)
+        void RpcLibClientBase::beginMultiWindowDraw(const std::vector<int>& window_indices)
         {
-            pimpl_->client.call("simInitializeSubwindowDraw", window_index, width, height);
+            pimpl_->client.call("beginMultiWindowDraw", window_indices);
         }
 
-        void RpcLibClientBase::simBeginSubwindowDraw(int window_index)
+        void RpcLibClientBase::endMultiWindowDraw(const std::vector<int>& window_indices)
         {
-            pimpl_->client.call("simBeginSubwindowDraw", window_index);
+            pimpl_->client.call("endMultiWindowDraw", window_indices);
         }
 
-        void RpcLibClientBase::simEndSubwindowDraw(int window_index)
+        void RpcLibClientBase::drawMultiWindowPoints(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& sizes)
         {
-            pimpl_->client.call("simEndSubwindowDraw", window_index);
+            vector<vector<RpcLibAdaptorsBase::Vector2r>> conv_points;
+            for (int i = 0; i < points.size(); i++) {
+                vector<RpcLibAdaptorsBase::Vector2r> conv_points_i;
+                RpcLibAdaptorsBase::from(points[i], conv_points_i);
+                conv_points.push_back(conv_points_i);
+            }
+            pimpl_->client.call("drawMultiWindowPoints", window_indices, conv_points, color_rgba, sizes);
         }
 
-        void RpcLibClientBase::simDrawSubwindowPoints(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float size)
+        void RpcLibClientBase::drawMultiWindowLineStrip(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses)
         {
-            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
-            RpcLibAdaptorsBase::from(points, conv_points);
-            pimpl_->client.call("simDrawSubwindowPoints", window_index, conv_points, color_rgba, size);
+            vector<vector<RpcLibAdaptorsBase::Vector2r>> conv_points;
+            for (int i = 0; i < points.size(); i++) {
+                vector<RpcLibAdaptorsBase::Vector2r> conv_points_i;
+                RpcLibAdaptorsBase::from(points[i], conv_points_i);
+                conv_points.push_back(conv_points_i);
+            }
+            pimpl_->client.call("drawMultiWindowLineStrip", window_indices, conv_points, color_rgba, thicknesses);
         }
 
-        void RpcLibClientBase::simDrawSubwindowLineStrip(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float thickness)
+        void RpcLibClientBase::drawMultiWindowLineList(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses)
         {
-            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
-            RpcLibAdaptorsBase::from(points, conv_points);
-            pimpl_->client.call("simDrawSubwindowLineStrip", window_index, conv_points, color_rgba, thickness);
+            vector<vector<RpcLibAdaptorsBase::Vector2r>> conv_points;
+            for (int i = 0; i < points.size(); i++) {
+                vector<RpcLibAdaptorsBase::Vector2r> conv_points_i;
+                RpcLibAdaptorsBase::from(points[i], conv_points_i);
+                conv_points.push_back(conv_points_i);
+            }
+            pimpl_->client.call("drawMultiWindowLineList", window_indices, conv_points, color_rgba, thicknesses);
         }
 
-        void RpcLibClientBase::simDrawSubwindowLineList(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float thickness)
+        void RpcLibClientBase::drawMultiWindowBoxes(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& corners, const std::vector<std::vector<msr::airlib::Vector2r>>& sizes, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses)
         {
-            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
-            RpcLibAdaptorsBase::from(points, conv_points);
-            pimpl_->client.call("simDrawSubwindowLineList", window_index, conv_points, color_rgba, thickness);
+            vector<vector<RpcLibAdaptorsBase::Vector2r>> conv_corners, conv_sizes;
+            for (int i = 0; i < corners.size(); i++) {
+                vector<RpcLibAdaptorsBase::Vector2r> conv_corners_i;
+                RpcLibAdaptorsBase::from(corners[i], conv_corners_i);
+                conv_corners.push_back(conv_corners_i);
+            }
+            for (int i = 0; i < sizes.size(); i++) {
+                vector<RpcLibAdaptorsBase::Vector2r> conv_sizes_i;
+                RpcLibAdaptorsBase::from(sizes[i], conv_sizes_i);
+                conv_sizes.push_back(conv_sizes_i);
+            }
+            pimpl_->client.call("drawMultiWindowBoxes", window_indices, conv_corners, conv_sizes, color_rgba, thicknesses);
         }
 
-        void RpcLibClientBase::simDrawSubwindowBoxes(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const vector<float>& color_rgba, float thickness)
+        void RpcLibClientBase::drawMultiWindowTags(const std::vector<int>& window_indices, const std::vector<std::vector<std::string>>& strings, const std::vector<std::vector<msr::airlib::Vector2r>>& positions, const std::vector<std::vector<float>>& text_color_rgba, const std::vector<std::vector<float>>& fill_color_rgba, const std::vector<std::vector<float>>& frame_color_rgba, const std::vector<float>& scales)
         {
-            vector<RpcLibAdaptorsBase::Vector2r> conv_corners, conv_sizes;
-            RpcLibAdaptorsBase::from(corners, conv_corners);
-            RpcLibAdaptorsBase::from(sizes, conv_sizes);
-            pimpl_->client.call("simDrawSubwindowBoxes", window_index, conv_corners, conv_sizes, color_rgba, thickness);
-        }
-
-        void RpcLibClientBase::simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const vector<float>& text_color_rgba, const vector<float>& fill_color_rgba, const vector<float>& frame_color_rgba, float scale)
-        {
-            vector<RpcLibAdaptorsBase::Vector2r> conv_positions;
-            RpcLibAdaptorsBase::from(positions, conv_positions);
-            pimpl_->client.call("simDrawSubwindowTags", window_index, strings, conv_positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale);
+            vector<vector<RpcLibAdaptorsBase::Vector2r>> conv_positions;
+            for (int i = 0; i < positions.size(); i++) {
+                vector<RpcLibAdaptorsBase::Vector2r> conv_positions_i;
+                RpcLibAdaptorsBase::from(positions[i], conv_positions_i);
+                conv_positions.push_back(conv_positions_i);
+            }
+            pimpl_->client.call("drawMultiWindowTags", window_indices, strings, conv_positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scales);
         }
         /* ------------------------------------------------------------------------------------------------------ */
 

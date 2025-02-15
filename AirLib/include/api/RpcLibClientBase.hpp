@@ -107,17 +107,18 @@ namespace airlib
         void simPlotTransforms(const vector<Pose>& poses, float scale, float thickness, float duration, bool is_persistent);
         void simPlotTransformsWithNames(const vector<Pose>& poses, const vector<std::string>& names, float tf_scale, float tf_thickness, float text_scale, const vector<float>& text_color_rgba, float duration);
 
-        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
-        //----------- Drawing APIs ----------/
-        void simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const Vector2r& crop_corner = Vector2r(0.0, 0.0), const Vector2r& crop_size = Vector2r(0.0, 0.0));
-        void simInitializeSubwindowDraw(int window_index, int width, int height);
-        void simBeginSubwindowDraw(int window_index);
-        void simEndSubwindowDraw(int window_index);
-        void simDrawSubwindowPoints(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float size);
-        void simDrawSubwindowLineStrip(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float thickness);
-        void simDrawSubwindowLineList(int window_index, const std::vector<Vector2r>& points, const vector<float>& color_rgba, float thickness);
-        void simDrawSubwindowBoxes(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const vector<float>& color_rgba, float thickness);
-        void simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const vector<float>& text_color_rgba, const vector<float>& fill_color_rgba, const vector<float>& frame_color_rgba, float scale);
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Image APIs ----------/
+        void setMultiWindowImage(const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<msr::airlib::Vector2r>& crop_corners, const std::vector<msr::airlib::Vector2r>& crop_sizes);
+        //---------- Drawing APIs ---------/
+        void initMultiWindowDraw(const std::vector<int>& window_indices, const std::vector<msr::airlib::Vector2r>& window_sizes);
+        void beginMultiWindowDraw(const std::vector<int>& window_indices);
+        void endMultiWindowDraw(const std::vector<int>& window_indices);
+        void drawMultiWindowPoints(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& sizes);
+        void drawMultiWindowLineStrip(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses);
+        void drawMultiWindowLineList(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses);
+        void drawMultiWindowBoxes(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& corners, const std::vector<std::vector<msr::airlib::Vector2r>>& sizes, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses);
+        void drawMultiWindowTags(const std::vector<int>& window_indices, const std::vector<std::vector<std::string>>& strings, const std::vector<std::vector<msr::airlib::Vector2r>>& positions, const std::vector<std::vector<float>>& text_color_rgba, const std::vector<std::vector<float>>& fill_color_rgba, const std::vector<std::vector<float>>& frame_color_rgba, const std::vector<float>& scales);
         /* ------------------------------------------------------------------------------------------------------ */
 
         bool armDisarm(bool arm, const std::string& vehicle_name = "");

@@ -40,8 +40,10 @@ public:
     virtual void Tick(float DeltaSeconds) override;
 
     /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
-    //----------- Drawing APIs ----------/
+    //----------- Image APIs ----------/
+    // Set image for a subwindow
     void simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner = msr::airlib::Vector2r(0.0, 0.0), const msr::airlib::Vector2r& crop_size = msr::airlib::Vector2r(0.0, 0.0));
+    //----------- Drawing APIs ----------/
     // Initialize draw with given size
     void simInitializeSubwindowDraw(int window_index, int width, int height);
     // Reset drawn objects
