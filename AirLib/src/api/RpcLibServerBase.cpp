@@ -520,82 +520,54 @@ namespace airlib
         });
 
         /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
-        //----------- Image APIs ----------/
-        pimpl_->server.bind("setMultiWindowImage", [&](const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<RpcLibAdaptorsBase::Vector2r>& crop_corners, const std::vector<RpcLibAdaptorsBase::Vector2r>& crop_sizes) -> void {
-            vector<Vector2r> conv_crop_corners, conv_crop_sizes;
-            RpcLibAdaptorsBase::to(crop_corners, conv_crop_corners);
-            RpcLibAdaptorsBase::to(crop_sizes, conv_crop_sizes);
-            getWorldSimApi()->setMultiWindowImage(window_indices, vehicle_names, camera_names, conv_crop_corners, conv_crop_sizes);
+        //----------- Window APIs ----------/
+        pimpl_->server.bind("simSetWindowImage", [&](int window_index, const std::string& vehicle_name, const std::string& camera_name, const RpcLibAdaptorsBase::Vector2r& crop_corner, const RpcLibAdaptorsBase::Vector2r& crop_size) -> void {
+            Vector2r conv_crop_corner = crop_corner.to();
+            Vector2r conv_crop_size = crop_size.to();
+            getWorldSimApi()->simSetWindowImage(window_index, vehicle_name, camera_name, conv_crop_corner, conv_crop_size);
         });
 
-        //----------- Drawing APIs ----------/
-        pimpl_->server.bind("initMultiWindowDraw", [&](const std::vector<int>& window_indices, const std::vector<RpcLibAdaptorsBase::Vector2r>& window_sizes) -> void {
-            vector<Vector2r> conv_window_sizes;
-            RpcLibAdaptorsBase::to(window_sizes, conv_window_sizes);
-            getWorldSimApi()->initMultiWindowDraw(window_indices, conv_window_sizes);
+        pimpl_->server.bind("simInitWindowDraw", [&](int window_index, int draw_width, int draw_height) -> void {
+            getWorldSimApi()->simInitWindowDraw(window_index, draw_width, draw_height);
         });
 
-        pimpl_->server.bind("beginMultiWindowDraw", [&](const std::vector<int>& window_indices) -> void {
-            getWorldSimApi()->beginMultiWindowDraw(window_indices);
+        pimpl_->server.bind("simBeginWindowDraw", [&](int window_index) -> void {
+            getWorldSimApi()->simBeginWindowDraw(window_index);
         });
 
-        pimpl_->server.bind("endMultiWindowDraw", [&](const std::vector<int>& window_indices) -> void {
-            getWorldSimApi()->endMultiWindowDraw(window_indices);
+        pimpl_->server.bind("simEndWindowDraw", [&](int window_index) -> void {
+            getWorldSimApi()->simEndWindowDraw(window_index);
         });
 
-        pimpl_->server.bind("drawMultiWindowPoints", [&](const std::vector<int>& window_indices, const std::vector<std::vector<RpcLibAdaptorsBase::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& sizes) -> void {
-            vector<vector<Vector2r>> conv_points;
-            for (int i = 0; i < points.size(); i++) {
-                vector<Vector2r> conv_points_i;
-                RpcLibAdaptorsBase::to(points[i], conv_points_i);
-                conv_points.push_back(conv_points_i);
-            }
-            getWorldSimApi()->drawMultiWindowPoints(window_indices, conv_points, color_rgba, sizes);
+        pimpl_->server.bind("simDrawWindowPoints", [&](int window_index, const std::vector<RpcLibAdaptorsBase::Vector2r>& points, const std::vector<float>& color_rgba, float size) -> void {
+            vector<Vector2r> conv_points;
+            RpcLibAdaptorsBase::to(points, conv_points);
+            getWorldSimApi()->simDrawWindowPoints(window_index, conv_points, color_rgba, size);
         });
 
-        pimpl_->server.bind("drawMultiWindowLineStrip", [&](const std::vector<int>& window_indices, const std::vector<std::vector<RpcLibAdaptorsBase::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses) -> void {
-            vector<vector<Vector2r>> conv_points;
-            for (int i = 0; i < points.size(); i++) {
-                vector<Vector2r> conv_points_i;
-                RpcLibAdaptorsBase::to(points[i], conv_points_i);
-                conv_points.push_back(conv_points_i);
-            }
-            getWorldSimApi()->drawMultiWindowLineStrip(window_indices, conv_points, color_rgba, thicknesses);
+        pimpl_->server.bind("simDrawWindowLineStrip", [&](int window_index, const std::vector<RpcLibAdaptorsBase::Vector2r>& points, const std::vector<float>& color_rgba, float thickness) -> void {
+            vector<Vector2r> conv_points;
+            RpcLibAdaptorsBase::to(points, conv_points);
+            getWorldSimApi()->simDrawWindowLineStrip(window_index, conv_points, color_rgba, thickness);
         });
 
-        pimpl_->server.bind("drawMultiWindowLineList", [&](const std::vector<int>& window_indices, const std::vector<std::vector<RpcLibAdaptorsBase::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses) -> void {
-            vector<vector<Vector2r>> conv_points;
-            for (int i = 0; i < points.size(); i++) {
-                vector<Vector2r> conv_points_i;
-                RpcLibAdaptorsBase::to(points[i], conv_points_i);
-                conv_points.push_back(conv_points_i);
-            }
-            getWorldSimApi()->drawMultiWindowLineList(window_indices, conv_points, color_rgba, thicknesses);
+        pimpl_->server.bind("simDrawWindowLineList", [&](int window_index, const std::vector<RpcLibAdaptorsBase::Vector2r>& points, const std::vector<float>& color_rgba, float thickness) -> void {
+            vector<Vector2r> conv_points;
+            RpcLibAdaptorsBase::to(points, conv_points);
+            getWorldSimApi()->simDrawWindowLineList(window_index, conv_points, color_rgba, thickness);
         });
 
-        pimpl_->server.bind("drawMultiWindowBoxes", [&](const std::vector<int>& window_indices, const std::vector<std::vector<RpcLibAdaptorsBase::Vector2r>>& corners, const std::vector<std::vector<RpcLibAdaptorsBase::Vector2r>>& sizes, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses) -> void {
-            vector<vector<Vector2r>> conv_corners, conv_sizes;
-            for (int i = 0; i < corners.size(); i++) {
-                vector<Vector2r> conv_corners_i;
-                RpcLibAdaptorsBase::to(corners[i], conv_corners_i);
-                conv_corners.push_back(conv_corners_i);
-            }
-            for (int i = 0; i < sizes.size(); i++) {
-                vector<Vector2r> conv_sizes_i;
-                RpcLibAdaptorsBase::to(sizes[i], conv_sizes_i);
-                conv_sizes.push_back(conv_sizes_i);
-            }
-            getWorldSimApi()->drawMultiWindowBoxes(window_indices, conv_corners, conv_sizes, color_rgba, thicknesses);
+        pimpl_->server.bind("simDrawWindowBoxes", [&](int window_index, const std::vector<RpcLibAdaptorsBase::Vector2r>& corners, const std::vector<RpcLibAdaptorsBase::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness) -> void {
+            vector<Vector2r> conv_corners, conv_sizes;
+            RpcLibAdaptorsBase::to(corners, conv_corners);
+            RpcLibAdaptorsBase::to(sizes, conv_sizes);
+            getWorldSimApi()->simDrawWindowBoxes(window_index, conv_corners, conv_sizes, color_rgba, thickness);
         });
 
-        pimpl_->server.bind("drawMultiWindowTags", [&](const std::vector<int>& window_indices, const std::vector<std::vector<std::string>>& strings, const std::vector<std::vector<RpcLibAdaptorsBase::Vector2r>>& positions, const std::vector<std::vector<float>>& text_color_rgba, const std::vector<std::vector<float>>& fill_color_rgba, const std::vector<std::vector<float>>& frame_color_rgba, const std::vector<float>& scale) -> void {
-            vector<vector<Vector2r>> conv_positions;
-            for (int i = 0; i < positions.size(); i++) {
-                vector<Vector2r> conv_positions_i;
-                RpcLibAdaptorsBase::to(positions[i], conv_positions_i);
-                conv_positions.push_back(conv_positions_i);
-            }
-            getWorldSimApi()->drawMultiWindowTags(window_indices, strings, conv_positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale);
+        pimpl_->server.bind("simDrawWindowTags", [&](int window_index, const std::vector<std::string>& strings, const std::vector<RpcLibAdaptorsBase::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale) -> void {
+            vector<Vector2r> conv_positions;
+            RpcLibAdaptorsBase::to(positions, conv_positions);
+            getWorldSimApi()->simDrawWindowTags(window_index, strings, conv_positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale);
         });
         /* ------------------------------------------------------------------------------------------------------ */
 

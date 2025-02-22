@@ -40,26 +40,25 @@ public:
     virtual void Tick(float DeltaSeconds) override;
 
     /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
-    //----------- Image APIs ----------/
+    //----------- Window APIs ----------/
     // Set image for a subwindow
-    void simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner = msr::airlib::Vector2r(0.0, 0.0), const msr::airlib::Vector2r& crop_size = msr::airlib::Vector2r(0.0, 0.0));
-    //----------- Drawing APIs ----------/
+    void setWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner = msr::airlib::Vector2r(0.0, 0.0), const msr::airlib::Vector2r& crop_size = msr::airlib::Vector2r(0.0, 0.0));
     // Initialize draw with given size
-    void simInitializeSubwindowDraw(int window_index, int width, int height);
+    void initWindowDraw(int window_index, int width, int height);
     // Reset drawn objects
-    void simBeginSubwindowDraw(int window_index);
+    void beginWindowDraw(int window_index);
     // Represent drawn objects
-    void simEndSubwindowDraw(int window_index);
+    void endWindowDraw(int window_index);
     // Plot points
-    void simDrawSubwindowPoints(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float size);
+    void drawWindowPoints(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float size);
     // Plot line for points 0-1, 1-2, 2-3
-    void simDrawSubwindowLineStrip(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness);
+    void drawWindowLineStrip(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness);
     // Plot line for points 0-1, 2-3, 4-5. Must be even number of points
-    void simDrawSubwindowLineList(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness);
+    void drawWindowLineList(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness);
     // Plot boxes
-    void simDrawSubwindowBoxes(int window_index, const std::vector<msr::airlib::Vector2r>& corners, const std::vector<msr::airlib::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness);
+    void drawWindowBoxes(int window_index, const std::vector<msr::airlib::Vector2r>& corners, const std::vector<msr::airlib::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness);
     // Plot tags
-    void simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<msr::airlib::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale);
+    void drawWindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<msr::airlib::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale);
     /* ------------------------------------------------------------------------------------------------------ */
 
 protected:

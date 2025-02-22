@@ -108,17 +108,16 @@ namespace airlib
         void simPlotTransformsWithNames(const vector<Pose>& poses, const vector<std::string>& names, float tf_scale, float tf_thickness, float text_scale, const vector<float>& text_color_rgba, float duration);
 
         /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
-        //----------- Image APIs ----------/
-        void setMultiWindowImage(const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<msr::airlib::Vector2r>& crop_corners, const std::vector<msr::airlib::Vector2r>& crop_sizes);
-        //---------- Drawing APIs ---------/
-        void initMultiWindowDraw(const std::vector<int>& window_indices, const std::vector<msr::airlib::Vector2r>& window_sizes);
-        void beginMultiWindowDraw(const std::vector<int>& window_indices);
-        void endMultiWindowDraw(const std::vector<int>& window_indices);
-        void drawMultiWindowPoints(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& sizes);
-        void drawMultiWindowLineStrip(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses);
-        void drawMultiWindowLineList(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses);
-        void drawMultiWindowBoxes(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& corners, const std::vector<std::vector<msr::airlib::Vector2r>>& sizes, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses);
-        void drawMultiWindowTags(const std::vector<int>& window_indices, const std::vector<std::vector<std::string>>& strings, const std::vector<std::vector<msr::airlib::Vector2r>>& positions, const std::vector<std::vector<float>>& text_color_rgba, const std::vector<std::vector<float>>& fill_color_rgba, const std::vector<std::vector<float>>& frame_color_rgba, const std::vector<float>& scales);
+        //----------- Window APIs ----------/
+        void simSetWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner = msr::airlib::Vector2r(0.0, 0.0), const msr::airlib::Vector2r& crop_size = msr::airlib::Vector2r(0.0, 0.0));
+        void simInitWindowDraw(int window_index, int draw_width, int draw_height);
+        void simBeginWindowDraw(int window_index);
+        void simEndWindowDraw(int window_index);
+        void simDrawWindowPoints(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float size);
+        void simDrawWindowLineStrip(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness);
+        void simDrawWindowLineList(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness);
+        void simDrawWindowBoxes(int window_index, const std::vector<msr::airlib::Vector2r>& corners, const std::vector<msr::airlib::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness);
+        void simDrawWindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<msr::airlib::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale);
         /* ------------------------------------------------------------------------------------------------------ */
 
         bool armDisarm(bool arm, const std::string& vehicle_name = "");

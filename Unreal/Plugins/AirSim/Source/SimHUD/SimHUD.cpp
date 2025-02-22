@@ -110,7 +110,7 @@ void ASimHUD::updateWidgetSubwindowVisibility()
     for (int window_index = 0; window_index < AirSimSettings::kSubwindowCount; ++window_index) {
         APIPCamera* camera = subwindow_cameras_[window_index];
         ImageType camera_type = getSubWindowSettings().at(window_index).image_type;
-		std::string annotation_name = getSubWindowSettings().at(window_index).annotation_name;
+        std::string annotation_name = getSubWindowSettings().at(window_index).annotation_name;
 
         if (camera_type == ImageType::Annotation) {
             if (simmode_->DoesAnnotationLayerExist(FString(annotation_name.c_str()))) {
@@ -279,14 +279,14 @@ std::vector<ASimHUD::AirSimSettings::SubwindowSetting>& ASimHUD::getSubWindowSet
 std::string ASimHUD::getSimModeFromUser()
 {
     if (EAppReturnType::No == UAirBlueprintLib::ShowMessage(EAppMsgType::YesNo,
-                                                            "Would you like to use car/skid-vehicle simulation? Choose no to use quadrotor simulation.",
-                                                            "Choose Vehicle")) {
+        "Would you like to use car/skid-vehicle simulation? Choose no to use quadrotor simulation.",
+        "Choose Vehicle")) {
         return AirSimSettings::kSimModeTypeMultirotor;
     }
     else
         if (EAppReturnType::No == UAirBlueprintLib::ShowMessage(EAppMsgType::YesNo,
-                                                                "Would you like to use car simulation? Choose no to use skid-vehicle simulation.",
-                                                                "Choose Vehicle")) {
+            "Would you like to use car simulation? Choose no to use skid-vehicle simulation.",
+            "Choose Vehicle")) {
             return AirSimSettings::kSimModeTypeSkidVehicle;
         }
         else
@@ -308,20 +308,20 @@ void ASimHUD::createSimMode()
     //spawn at origin. We will use this to do global NED transforms, for ex, non-vehicle objects in environment
     if (simmode_name == AirSimSettings::kSimModeTypeMultirotor)
         simmode_ = this->GetWorld()->SpawnActor<ASimModeWorldMultiRotor>(FVector::ZeroVector,
-                                                                         FRotator::ZeroRotator,
-                                                                         simmode_spawn_params);
+            FRotator::ZeroRotator,
+            simmode_spawn_params);
     else if (simmode_name == AirSimSettings::kSimModeTypeCar)
         simmode_ = this->GetWorld()->SpawnActor<ASimModeCar>(FVector::ZeroVector,
-                                                             FRotator::ZeroRotator,
-                                                             simmode_spawn_params);
+            FRotator::ZeroRotator,
+            simmode_spawn_params);
     else if (simmode_name == AirSimSettings::kSimModeTypeSkidVehicle)
         simmode_ = this->GetWorld()->SpawnActor<ASimModeSkidVehicle>(FVector::ZeroVector,
-                                                                     FRotator::ZeroRotator,
-                                                                     simmode_spawn_params);
+            FRotator::ZeroRotator,
+            simmode_spawn_params);
     else if (simmode_name == AirSimSettings::kSimModeTypeComputerVision)
         simmode_ = this->GetWorld()->SpawnActor<ASimModeComputerVision>(FVector::ZeroVector,
-                                                                        FRotator::ZeroRotator,
-                                                                        simmode_spawn_params);
+            FRotator::ZeroRotator,
+            simmode_spawn_params);
     else {
         UAirBlueprintLib::ShowMessage(EAppMsgType::Ok, std::string("SimMode is not valid: ") + simmode_name, "Error");
         UAirBlueprintLib::LogMessageString("SimMode is not valid: ", simmode_name, LogDebugLevel::Failure);
@@ -352,8 +352,8 @@ void ASimHUD::initializeSubWindows()
             subwindow_cameras_[setting.window_index] = camera;
         else
             UAirBlueprintLib::LogMessageString("Invalid Camera settings in <SubWindows> element",
-                                               std::to_string(setting.window_index),
-                                               LogDebugLevel::Failure);
+                std::to_string(setting.window_index),
+                LogDebugLevel::Failure);
     }
 }
 
@@ -373,9 +373,9 @@ FString ASimHUD::getLaunchPath(const std::string& filename)
 bool ASimHUD::getSettingsText(std::string& settingsText)
 {
     return (getSettingsTextFromCommandLine(settingsText) ||
-            readSettingsTextFromFile(FString(msr::airlib::Settings::getExecutableFullPath("settings.json").c_str()), settingsText) ||
-            readSettingsTextFromFile(getLaunchPath("settings.json"), settingsText) ||
-            readSettingsTextFromFile(FString(msr::airlib::Settings::Settings::getUserDirectoryFullPath("settings.json").c_str()), settingsText));
+        readSettingsTextFromFile(FString(msr::airlib::Settings::getExecutableFullPath("settings.json").c_str()), settingsText) ||
+        readSettingsTextFromFile(getLaunchPath("settings.json"), settingsText) ||
+        readSettingsTextFromFile(FString(msr::airlib::Settings::Settings::getUserDirectoryFullPath("settings.json").c_str()), settingsText));
 }
 
 // Attempts to parse the settings file path or the settings text from the command line
@@ -422,8 +422,8 @@ bool ASimHUD::readSettingsTextFromFile(const FString& settingsFilepath, std::str
 }
 
 /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
-// Public API methods
-void ASimHUD::simSetSubwindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner, const msr::airlib::Vector2r& crop_size)
+//----------- Window APIs ----------/
+void ASimHUD::setWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const msr::airlib::Vector2r& crop_corner, const msr::airlib::Vector2r& crop_size)
 {
     if (window_index >= AirSimSettings::kSubwindowCount)
     {
@@ -477,22 +477,22 @@ void ASimHUD::simSetSubwindowImage(int window_index, const std::string& vehicle_
     updateSubWindowWithCropping(window_index, x, y, w, h);
 }
 
-void ASimHUD::simInitializeSubwindowDraw(int window_index, int width, int height)
+void ASimHUD::initWindowDraw(int window_index, int width, int height)
 {
     widget_->initializeSubwindowDraw(window_index, width, height);
 }
 
-void ASimHUD::simBeginSubwindowDraw(int window_index)
+void ASimHUD::beginWindowDraw(int window_index)
 {
     widget_->beginSubwindowDraw(window_index);
 }
 
-void ASimHUD::simEndSubwindowDraw(int window_index)
+void ASimHUD::endWindowDraw(int window_index)
 {
     widget_->endSubwindowDraw(window_index);
 }
 
-void ASimHUD::simDrawSubwindowPoints(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float size)
+void ASimHUD::drawWindowPoints(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float size)
 {
     // Validate color_rgba size
     if (color_rgba.size() != 4) {
@@ -506,14 +506,14 @@ void ASimHUD::simDrawSubwindowPoints(int window_index, const std::vector<msr::ai
     // Draw each point
     for (const auto& point : points) {
         widget_->drawSubwindowPoint(
-            window_index, 
-            FVector2D(point.x(), point.y()), 
+            window_index,
+            FVector2D(point.x(), point.y()),
             color,
             size);
     }
 }
 
-void ASimHUD::simDrawSubwindowLineStrip(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
+void ASimHUD::drawWindowLineStrip(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
 {
     // Validate color_rgba size
     if (color_rgba.size() != 4) {
@@ -548,7 +548,7 @@ void ASimHUD::simDrawSubwindowLineStrip(int window_index, const std::vector<msr:
         thickness);
 }
 
-void ASimHUD::simDrawSubwindowLineList(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
+void ASimHUD::drawWindowLineList(int window_index, const std::vector<msr::airlib::Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
 {
     // Validate color_rgba size
     if (color_rgba.size() != 4) {
@@ -580,7 +580,7 @@ void ASimHUD::simDrawSubwindowLineList(int window_index, const std::vector<msr::
     }
 }
 
-void ASimHUD::simDrawSubwindowBoxes(int window_index, const std::vector<msr::airlib::Vector2r>& corners, const std::vector<msr::airlib::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness)
+void ASimHUD::drawWindowBoxes(int window_index, const std::vector<msr::airlib::Vector2r>& corners, const std::vector<msr::airlib::Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness)
 {
     // Validate color_rgba size
     if (color_rgba.size() != 4) {
@@ -610,7 +610,7 @@ void ASimHUD::simDrawSubwindowBoxes(int window_index, const std::vector<msr::air
     }
 }
 
-void ASimHUD::simDrawSubwindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<msr::airlib::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale)
+void ASimHUD::drawWindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<msr::airlib::Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale)
 {
     // Validate color_rgba size
     if (text_color_rgba.size() != 4 || fill_color_rgba.size() != 4 || frame_color_rgba.size() != 4) {

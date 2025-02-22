@@ -14,7 +14,8 @@
 #include <algorithm>
 
 WorldSimApi::WorldSimApi(ASimModeBase* simmode)
-    : simmode_(simmode) {}
+    : simmode_(simmode) {
+}
 
 bool WorldSimApi::loadLevel(const std::string& level_name)
 {
@@ -26,14 +27,14 @@ bool WorldSimApi::loadLevel(const std::string& level_name)
     std::this_thread::sleep_for(0.1s);
     UAirBlueprintLib::RunCommandOnGameThread([this, level_name, &success]() {
         success = UAirBlueprintLib::loadLevel(this->simmode_->GetWorld(), FString(level_name.c_str()));
-    },
-                                             true);
+        },
+        true);
 
-    //Remove Loading screen from viewport
+//Remove Loading screen from viewport
     UAirBlueprintLib::RunCommandOnGameThread([this, level_name]() {
         this->simmode_->OnLevelLoaded.Broadcast();
-    },
-                                             true);
+        },
+        true);
     this->simmode_->toggleLoadingScreen(false);
 
     return success;
@@ -47,8 +48,8 @@ void WorldSimApi::spawnPlayer()
 
     UAirBlueprintLib::RunCommandOnGameThread([&]() {
         success = UAirBlueprintLib::spawnPlayer(this->simmode_->GetWorld());
-    },
-                                             true);
+        },
+        true);
 
     if (!success) {
         UE_LOG(LogTemp, Error, TEXT("Could not find valid PlayerStart Position"));
@@ -72,8 +73,8 @@ bool WorldSimApi::destroyObject(const std::string& object_name)
             simmode_->scene_object_map.Remove(FString(object_name.c_str()));
 
         GEngine->ForceGarbageCollection(true);
-    },
-                                             true);
+        },
+        true);
     return result;
 }
 
@@ -136,8 +137,8 @@ std::string WorldSimApi::spawnObject(const std::string& object_name, const std::
         }
 
         UAirBlueprintLib::setSimulatePhysics(NewActor, physics_enabled);
-    },
-                                             true);
+        },
+        true);
 
     if (!spawned_object) {
         throw std::invalid_argument(
@@ -185,8 +186,8 @@ bool WorldSimApi::setLightIntensity(const std::string& light_name, float intensi
             FOutputDeviceNull ar;
             result = light_actor->CallFunctionByNameWithArguments(*command, ar, nullptr, true);
         }
-    },
-                                             true);
+        },
+        true);
     return result;
 }
 
@@ -266,8 +267,8 @@ void WorldSimApi::reset()
 {
     UAirBlueprintLib::RunCommandOnGameThread([this]() {
         simmode_->reset();
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::pause(bool is_paused)
@@ -286,7 +287,7 @@ void WorldSimApi::continueForFrames(uint32_t frames)
 }
 
 void WorldSimApi::setTimeOfDay(bool is_enabled, const std::string& start_datetime, bool is_start_datetime_dst,
-                               float celestial_clock_speed, float update_interval_secs, bool move_sun)
+    float celestial_clock_speed, float update_interval_secs, bool move_sun)
 {
     simmode_->setTimeOfDay(is_enabled, start_datetime, is_start_datetime_dst, celestial_clock_speed, update_interval_secs, move_sun);
 }
@@ -296,20 +297,20 @@ bool WorldSimApi::addVehicle(const std::string& vehicle_name, const std::string&
     bool result;
     UAirBlueprintLib::RunCommandOnGameThread([&]() {
         result = simmode_->createVehicleAtRuntime(vehicle_name, vehicle_type, pose, pawn_path);
-    },
-                                             true);
+        },
+        true);
 
     return result;
 }
 
 bool WorldSimApi::setSegmentationObjectID(const std::string& mesh_name, int object_id, bool is_name_regex)
 {
-	return simmode_->SetMeshInstanceSegmentationID(mesh_name, object_id, is_name_regex);
+    return simmode_->SetMeshInstanceSegmentationID(mesh_name, object_id, is_name_regex);
 }
 
 int WorldSimApi::getSegmentationObjectID(const std::string& mesh_name) const
 {
-	return simmode_->GetMeshInstanceSegmentationID(mesh_name);
+    return simmode_->GetMeshInstanceSegmentationID(mesh_name);
 }
 
 bool WorldSimApi::setAnnotationObjectID(const std::string& annotation_name, const std::string& mesh_name, int object_id, bool is_name_regex)
@@ -358,7 +359,7 @@ std::string  WorldSimApi::getAnnotationObjectTexturePath(const std::string& anno
 }
 
 void WorldSimApi::printLogMessage(const std::string& message,
-                                  const std::string& message_param, unsigned char severity)
+    const std::string& message_param, unsigned char severity)
 {
     UAirBlueprintLib::LogMessageString(message, message_param, static_cast<LogDebugLevel>(severity));
 }
@@ -368,7 +369,7 @@ std::vector<std::string> WorldSimApi::listSceneObjects(const std::string& name_r
     std::vector<std::string> result;
     UAirBlueprintLib::RunCommandOnGameThread([this, &name_regex, &result]() {
         result = UAirBlueprintLib::ListMatchingActorsOriginal(simmode_, name_regex);
-    },
+        },
         true);
     return result;
 }
@@ -379,8 +380,8 @@ bool WorldSimApi::runConsoleCommand(const std::string& command)
     UAirBlueprintLib::RunCommandOnGameThread([this, &command, &succeeded]() {
         FString fStringCommand(command.c_str());
         succeeded = UAirBlueprintLib::RunConsoleCommand(simmode_, fStringCommand);
-    },
-                                             true);
+        },
+        true);
     return succeeded;
 }
 
@@ -422,7 +423,7 @@ WorldSimApi::Pose WorldSimApi::getObjectPose(const std::string& object_name, boo
             result = actor ? simmode_->getGlobalNedTransform().toLocalNed(FTransform(actor->GetActorRotation(), actor->GetActorLocation()))
                 : Pose::nanPose();
         }
-    }, true);
+        }, true);
     return result;
 }
 
@@ -454,8 +455,8 @@ bool WorldSimApi::setObjectPose(const std::string& object_name, const WorldSimAp
         }
         else
             result = false;
-    },
-                                             true);
+        },
+        true);
     return result;
 }
 
@@ -471,8 +472,8 @@ bool WorldSimApi::setObjectScale(const std::string& object_name, const Vector3r&
         }
         else
             result = false;
-    },
-                                             true);
+        },
+        true);
     return result;
 }
 
@@ -480,8 +481,8 @@ void WorldSimApi::enableWeather(bool enable)
 {
     UAirBlueprintLib::RunCommandOnGameThread([this, enable]() {
         UWeatherLib::setWeatherEnabled(simmode_->GetWorld(), enable);
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::setWeatherParameter(WeatherParameter param, float val)
@@ -491,8 +492,8 @@ void WorldSimApi::setWeatherParameter(WeatherParameter param, float val)
 
     UAirBlueprintLib::RunCommandOnGameThread([this, param_e, val]() {
         UWeatherLib::setWeatherParamScalar(simmode_->GetWorld(), param_e, val);
-    },
-                                             true);
+        },
+        true);
 }
 
 std::unique_ptr<std::vector<std::string>> WorldSimApi::swapTextures(const std::string& tag, int tex_id, int component_id, int material_id)
@@ -526,8 +527,8 @@ std::unique_ptr<std::vector<std::string>> WorldSimApi::swapTextures(const std::s
             dynamic_cast<ATextureShuffleActor*>(shuffler)->SwapTexture(tex_id, component_id, material_id);
             swappedObjectNames->push_back(TCHAR_TO_UTF8(*shuffler->GetName()));
         }
-    },
-                                             true);
+        },
+        true);
     return swappedObjectNames;
 }
 
@@ -537,8 +538,8 @@ bool WorldSimApi::setObjectMaterialFromTexture(const std::string& object_name, c
     UAirBlueprintLib::RunCommandOnGameThread([this, &object_name, &texture_path, &success, &component_id]() {
         if (!IsValid(simmode_->domain_rand_material_)) {
             UAirBlueprintLib::LogMessageString("Cannot find material for domain randomization",
-                                               "",
-                                               LogDebugLevel::Failure);
+                "",
+                LogDebugLevel::Failure);
         }
         else {
             UTexture2D* texture_desired = FImageUtils::ImportFileAsTexture2D(FString(texture_path.c_str()));
@@ -556,12 +557,12 @@ bool WorldSimApi::setObjectMaterialFromTexture(const std::string& object_name, c
             }
             else {
                 UAirBlueprintLib::LogMessageString("Cannot find specified actor for domain randomization",
-                                                   "",
-                                                   LogDebugLevel::Failure);
+                    "",
+                    LogDebugLevel::Failure);
             }
         }
-    },
-                                             true);
+        },
+        true);
 
     return success;
 }
@@ -575,8 +576,8 @@ bool WorldSimApi::setObjectMaterial(const std::string& object_name, const std::s
 
         if (!IsValid(material)) {
             UAirBlueprintLib::LogMessageString("Cannot find specified material for domain randomization",
-                                               "",
-                                               LogDebugLevel::Failure);
+                "",
+                LogDebugLevel::Failure);
         }
         else {
             if (IsValid(actor)) {
@@ -589,12 +590,12 @@ bool WorldSimApi::setObjectMaterial(const std::string& object_name, const std::s
             }
             else {
                 UAirBlueprintLib::LogMessageString("Cannot find specified actor for domain randomization",
-                                                   "",
-                                                   LogDebugLevel::Failure);
+                    "",
+                    LogDebugLevel::Failure);
             }
         }
-    },
-                                             true);
+        },
+        true);
 
     return success;
 }
@@ -604,8 +605,8 @@ void WorldSimApi::simFlushPersistentMarkers()
 {
     UAirBlueprintLib::RunCommandOnGameThread([this]() {
         FlushPersistentDebugLines(simmode_->GetWorld());
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::simPlotPoints(const std::vector<Vector3r>& points, const std::vector<float>& color_rgba, float size, float duration, bool is_persistent)
@@ -615,14 +616,14 @@ void WorldSimApi::simPlotPoints(const std::vector<Vector3r>& points, const std::
     UAirBlueprintLib::RunCommandOnGameThread([this, &points, &color, size, duration, is_persistent]() {
         for (const auto& point : points) {
             DrawDebugPoint(simmode_->GetWorld(),
-                           simmode_->getGlobalNedTransform().fromGlobalNed(point),
-                           size,
-                           color,
-                           is_persistent,
-                           duration);
+                simmode_->getGlobalNedTransform().fromGlobalNed(point),
+                size,
+                color,
+                is_persistent,
+                duration);
         }
-    },
-                                             true);
+        },
+        true);
 }
 
 // plot line for points 0-1, 1-2, 2-3
@@ -633,16 +634,16 @@ void WorldSimApi::simPlotLineStrip(const std::vector<Vector3r>& points, const st
     UAirBlueprintLib::RunCommandOnGameThread([this, &points, &color, thickness, duration, is_persistent]() {
         for (size_t idx = 0; idx != points.size() - 1; ++idx) {
             DrawDebugLine(simmode_->GetWorld(),
-                          simmode_->getGlobalNedTransform().fromGlobalNed(points[idx]),
-                          simmode_->getGlobalNedTransform().fromGlobalNed(points[idx + 1]),
-                          color,
-                          is_persistent,
-                          duration,
-                          0,
-                          thickness);
+                simmode_->getGlobalNedTransform().fromGlobalNed(points[idx]),
+                simmode_->getGlobalNedTransform().fromGlobalNed(points[idx + 1]),
+                color,
+                is_persistent,
+                duration,
+                0,
+                thickness);
         }
-    },
-                                             true);
+        },
+        true);
 }
 
 // plot line for points 0-1, 2-3, 4-5... must be even number of points
@@ -653,16 +654,16 @@ void WorldSimApi::simPlotLineList(const std::vector<Vector3r>& points, const std
     UAirBlueprintLib::RunCommandOnGameThread([this, &points, &color, thickness, duration, is_persistent]() {
         for (int idx = 0; idx < points.size() - 1; idx += 2) {
             DrawDebugLine(simmode_->GetWorld(),
-                          simmode_->getGlobalNedTransform().fromGlobalNed(points[idx]),
-                          simmode_->getGlobalNedTransform().fromGlobalNed(points[idx + 1]),
-                          color,
-                          is_persistent,
-                          duration,
-                          0,
-                          thickness);
+                simmode_->getGlobalNedTransform().fromGlobalNed(points[idx]),
+                simmode_->getGlobalNedTransform().fromGlobalNed(points[idx + 1]),
+                color,
+                is_persistent,
+                duration,
+                0,
+                thickness);
         }
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::simPlotArrows(const std::vector<Vector3r>& points_start, const std::vector<Vector3r>& points_end, const std::vector<float>& color_rgba, float thickness, float arrow_size, float duration, bool is_persistent)
@@ -673,17 +674,17 @@ void WorldSimApi::simPlotArrows(const std::vector<Vector3r>& points_start, const
     UAirBlueprintLib::RunCommandOnGameThread([this, &points_start, &points_end, &color, thickness, arrow_size, duration, is_persistent]() {
         for (int idx = 0; idx < points_start.size(); ++idx) {
             DrawDebugDirectionalArrow(simmode_->GetWorld(),
-                                      simmode_->getGlobalNedTransform().fromGlobalNed(points_start[idx]),
-                                      simmode_->getGlobalNedTransform().fromGlobalNed(points_end[idx]),
-                                      arrow_size,
-                                      color,
-                                      is_persistent,
-                                      duration,
-                                      0,
-                                      thickness);
+                simmode_->getGlobalNedTransform().fromGlobalNed(points_start[idx]),
+                simmode_->getGlobalNedTransform().fromGlobalNed(points_end[idx]),
+                arrow_size,
+                color,
+                is_persistent,
+                duration,
+                0,
+                thickness);
         }
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::simPlotStrings(const std::vector<std::string>& strings, const std::vector<Vector3r>& positions, float scale, const std::vector<float>& color_rgba, float duration)
@@ -694,16 +695,16 @@ void WorldSimApi::simPlotStrings(const std::vector<std::string>& strings, const 
     UAirBlueprintLib::RunCommandOnGameThread([this, &strings, &positions, &color, scale, duration]() {
         for (int idx = 0; idx < positions.size(); ++idx) {
             DrawDebugString(simmode_->GetWorld(),
-                            simmode_->getGlobalNedTransform().fromGlobalNed(positions[idx]),
-                            FString(strings[idx].c_str()),
-                            NULL,
-                            color,
-                            duration,
-                            false,
-                            scale);
+                simmode_->getGlobalNedTransform().fromGlobalNed(positions[idx]),
+                FString(strings[idx].c_str()),
+                NULL,
+                color,
+                duration,
+                false,
+                scale);
         }
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::simPlotTransforms(const std::vector<Pose>& poses, float scale, float thickness, float duration, bool is_persistent)
@@ -711,16 +712,16 @@ void WorldSimApi::simPlotTransforms(const std::vector<Pose>& poses, float scale,
     UAirBlueprintLib::RunCommandOnGameThread([this, &poses, scale, thickness, duration, is_persistent]() {
         for (const auto& pose : poses) {
             DrawDebugCoordinateSystem(simmode_->GetWorld(),
-                                      simmode_->getGlobalNedTransform().fromGlobalNed(pose.position),
-                                      simmode_->getGlobalNedTransform().fromNed(pose.orientation).Rotator(),
-                                      scale,
-                                      is_persistent,
-                                      duration,
-                                      0,
-                                      thickness);
+                simmode_->getGlobalNedTransform().fromGlobalNed(pose.position),
+                simmode_->getGlobalNedTransform().fromNed(pose.orientation).Rotator(),
+                scale,
+                is_persistent,
+                duration,
+                0,
+                thickness);
         }
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::simPlotTransformsWithNames(const std::vector<Pose>& poses, const std::vector<std::string>& names, float tf_scale, float tf_thickness, float text_scale, const std::vector<float>& text_color_rgba, float duration)
@@ -731,24 +732,24 @@ void WorldSimApi::simPlotTransformsWithNames(const std::vector<Pose>& poses, con
     UAirBlueprintLib::RunCommandOnGameThread([this, &poses, &names, &color, tf_scale, tf_thickness, text_scale, duration]() {
         for (int idx = 0; idx < poses.size(); ++idx) {
             DrawDebugCoordinateSystem(simmode_->GetWorld(),
-                                      simmode_->getGlobalNedTransform().fromGlobalNed(poses[idx].position),
-                                      simmode_->getGlobalNedTransform().fromNed(poses[idx].orientation).Rotator(),
-                                      tf_scale,
-                                      false,
-                                      duration,
-                                      0,
-                                      tf_thickness);
+                simmode_->getGlobalNedTransform().fromGlobalNed(poses[idx].position),
+                simmode_->getGlobalNedTransform().fromNed(poses[idx].orientation).Rotator(),
+                tf_scale,
+                false,
+                duration,
+                0,
+                tf_thickness);
             DrawDebugString(simmode_->GetWorld(),
-                            simmode_->getGlobalNedTransform().fromGlobalNed(poses[idx]).GetLocation(),
-                            FString(names[idx].c_str()),
-                            NULL,
-                            color,
-                            duration,
-                            false,
-                            text_scale);
+                simmode_->getGlobalNedTransform().fromGlobalNed(poses[idx]).GetLocation(),
+                FString(names[idx].c_str()),
+                NULL,
+                color,
+                duration,
+                false,
+                text_scale);
         }
-    },
-                                             true);
+        },
+        true);
 }
 
 std::vector<WorldSimApi::MeshPositionVertexBuffersResponse> WorldSimApi::getMeshPositionVertexBuffers() const
@@ -756,152 +757,124 @@ std::vector<WorldSimApi::MeshPositionVertexBuffersResponse> WorldSimApi::getMesh
     std::vector<WorldSimApi::MeshPositionVertexBuffersResponse> responses;
     UAirBlueprintLib::RunCommandOnGameThread([&responses]() {
         responses = UAirBlueprintLib::GetStaticMeshComponents();
-    },
-                                             true);
+        },
+        true);
     return responses;
 }
 
 /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
-//----------- Image APIs ----------/
-void WorldSimApi::setMultiWindowImage(const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<msr::airlib::Vector2r>& crop_corners, const std::vector<msr::airlib::Vector2r>& crop_sizes)
+//----------- Window APIs ----------/
+void WorldSimApi::simSetWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const Vector2r& crop_corner, const Vector2r& crop_size)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices, &vehicle_names, &camera_names, &crop_corners, &crop_sizes]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simSetSubwindowImage(
-                window_indices[i], 
-                vehicle_names[i], 
-                camera_names[i], 
-                crop_corners[i], 
-                crop_sizes[i]);
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, &vehicle_name, &camera_name, &crop_corner, &crop_size]() {
+        sim_hud->setWindowImage(
+            window_index,
+            vehicle_name,
+            camera_name,
+            crop_corner,
+            crop_size);
         },
         true);
 }
 
-//----------- Drawing APIs ----------/
-void WorldSimApi::initMultiWindowDraw(const std::vector<int>& window_indices, const std::vector<msr::airlib::Vector2r>& window_sizes)
+void WorldSimApi::simInitWindowDraw(int window_index, int draw_width, int draw_height)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices, window_sizes]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simInitializeSubwindowDraw(
-                window_indices[i],
-                window_sizes[i].x(),
-                window_sizes[i].y());
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, draw_width, draw_height]() {
+        sim_hud->initWindowDraw(
+            window_index,
+            draw_width,
+            draw_height);
         },
         true);
 }
 
-void WorldSimApi::beginMultiWindowDraw(const std::vector<int>& window_indices)
+void WorldSimApi::simBeginWindowDraw(int window_index)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simBeginSubwindowDraw(
-                window_indices[i]);
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index]() {
+        sim_hud->beginWindowDraw(
+            window_index);
         },
         true);
 }
 
-void WorldSimApi::endMultiWindowDraw(const std::vector<int>& window_indices)
+void WorldSimApi::simEndWindowDraw(int window_index)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simEndSubwindowDraw(
-                window_indices[i]);
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index]() {
+        sim_hud->endWindowDraw(
+            window_index);
         },
         true);
 }
 
-void WorldSimApi::drawMultiWindowPoints(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& sizes)
+void WorldSimApi::simDrawWindowPoints(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float size)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices, &points, &color_rgba, sizes]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simDrawSubwindowPoints(
-                window_indices[i],
-                points[i],
-                color_rgba[i],
-                sizes[i]);
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, points, color_rgba, size]() {
+        sim_hud->drawWindowPoints(
+            window_index,
+            points,
+            color_rgba,
+            size);
         },
         true);
 }
 
-void WorldSimApi::drawMultiWindowLineStrip(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses)
+void WorldSimApi::simDrawWindowLineStrip(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices, &points, &color_rgba, thicknesses]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simDrawSubwindowLineStrip(
-                window_indices[i],
-                points[i],
-                color_rgba[i],
-                thicknesses[i]);
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, points, color_rgba, thickness]() {
+        sim_hud->drawWindowLineStrip(
+            window_index,
+            points,
+            color_rgba,
+            thickness);
         },
         true);
 }
 
-void WorldSimApi::drawMultiWindowLineList(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses)
+void WorldSimApi::simDrawWindowLineList(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices, &points, &color_rgba, thicknesses]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simDrawSubwindowLineList(
-                window_indices[i],
-                points[i],
-                color_rgba[i],
-                thicknesses[i]);
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, points, color_rgba, thickness]() {
+        sim_hud->drawWindowLineList(
+            window_index,
+            points,
+            color_rgba,
+            thickness);
         },
         true);
 }
 
-void WorldSimApi::drawMultiWindowBoxes(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& corners, const std::vector<std::vector<msr::airlib::Vector2r>>& sizes, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses)
+void WorldSimApi::simDrawWindowBoxes(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices, &corners, &sizes, &color_rgba, thicknesses]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simDrawSubwindowBoxes(
-                window_indices[i],
-                corners[i],
-                sizes[i],
-                color_rgba[i],
-                thicknesses[i]);
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, corners, sizes, color_rgba, thickness]() {
+        sim_hud->drawWindowBoxes(
+            window_index,
+            corners,
+            sizes,
+            color_rgba,
+            thickness);
         },
         true);
 }
 
-void WorldSimApi::drawMultiWindowTags(const std::vector<int>& window_indices, const std::vector<std::vector<std::string>>& strings, const std::vector<std::vector<msr::airlib::Vector2r>>& positions, const std::vector<std::vector<float>>& text_color_rgba, const std::vector<std::vector<float>>& fill_color_rgba, const std::vector<std::vector<float>>& frame_color_rgba, const std::vector<float>& scales)
+void WorldSimApi::simDrawWindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale)
 {
     ASimHUD* sim_hud = Cast<ASimHUD>(simmode_->getSimHud());
-
-    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_indices, &strings, &positions, &text_color_rgba, &fill_color_rgba, &frame_color_rgba, scales]() {
-        for (int i = 0; i < window_indices.size(); i++) {
-            sim_hud->simDrawSubwindowTags(
-                window_indices[i],
-                strings[i],
-                positions[i],
-                text_color_rgba[i],
-                fill_color_rgba[i],
-                frame_color_rgba[i],
-                scales[i]);
-        }
+    UAirBlueprintLib::RunCommandOnGameThread([sim_hud, window_index, strings, positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale]() {
+        sim_hud->drawWindowTags(
+            window_index,
+            strings,
+            positions,
+            text_color_rgba,
+            fill_color_rgba,
+            frame_color_rgba,
+            scale);
         },
         true);
 }
@@ -939,10 +912,10 @@ std::vector<std::string> WorldSimApi::listVehicles() const
 
     UAirBlueprintLib::RunCommandOnGameThread([this, &vehicle_names]() {
         vehicle_names = (simmode_->getApiProvider()->getVehicleSimApis()).keys();
-    },
-                                             true);
+        },
+        true);
 
-    // Remove '' from the list, representing default vehicle
+// Remove '' from the list, representing default vehicle
     auto position = std::find(vehicle_names.begin(), vehicle_names.end(), "");
     if (position != vehicle_names.end())
         vehicle_names.erase(position);
@@ -966,8 +939,8 @@ bool WorldSimApi::testLineOfSightBetweenPoints(const msr::airlib::GeoPoint& lla1
 
         const auto& settings = msr::airlib::AirSimSettings::singleton();
         msr::airlib::GeodeticConverter converter(settings.origin_geopoint.home_geo_point.latitude,
-                                                 settings.origin_geopoint.home_geo_point.longitude,
-                                                 settings.origin_geopoint.home_geo_point.altitude);
+            settings.origin_geopoint.home_geo_point.longitude,
+            settings.origin_geopoint.home_geo_point.altitude);
         double north, east, down;
         converter.geodetic2Ned(lla1.latitude, lla1.longitude, lla1.altitude, &north, &east, &down);
         msr::airlib::Vector3r ned(north, east, down);
@@ -991,8 +964,8 @@ bool WorldSimApi::testLineOfSightBetweenPoints(const msr::airlib::GeoPoint& lla1
 
             simmode_->GetWorld()->PersistentLineBatcher->DrawLine(point1, point2, color, SDPG_World, 4, 999999);
         }
-    },
-                                             true);
+        },
+        true);
 
     return !hit;
 }
@@ -1038,8 +1011,8 @@ std::vector<msr::airlib::GeoPoint> WorldSimApi::getWorldExtents() const
 
         ned = zero_based_ned_transform.toGlobalNed(world_max);
         lla_max_out = msr::airlib::EarthUtils::nedToGeodetic(ned, settings.origin_geopoint);
-    },
-                                             true);
+        },
+        true);
 
     common_utils::Utils::log("Extent min: " + lla_min_out.to_string() + ".  Max: " + lla_max_out.to_string(), common_utils::Utils::kLogLevelInfo);
 
@@ -1055,8 +1028,8 @@ msr::airlib::CameraInfo WorldSimApi::getCameraInfo(const CameraDetails& camera_d
     const APIPCamera* camera = simmode_->getCamera(camera_details);
     UAirBlueprintLib::RunCommandOnGameThread([camera, &info]() {
         info = camera->getCameraInfo();
-    },
-                                             true);
+        },
+        true);
 
     return info;
 }
@@ -1066,8 +1039,8 @@ void WorldSimApi::setCameraPose(const msr::airlib::Pose& pose, const CameraDetai
     APIPCamera* camera = simmode_->getCamera(camera_details);
     UAirBlueprintLib::RunCommandOnGameThread([camera, &pose]() {
         camera->setCameraPose(pose);
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::setCameraFoV(float fov_degrees, const CameraDetails& camera_details)
@@ -1075,8 +1048,8 @@ void WorldSimApi::setCameraFoV(float fov_degrees, const CameraDetails& camera_de
     APIPCamera* camera = simmode_->getCamera(camera_details);
     UAirBlueprintLib::RunCommandOnGameThread([camera, &fov_degrees]() {
         camera->setCameraFoV(fov_degrees);
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::setDistortionParam(const std::string& param_name, float value, const CameraDetails& camera_details)
@@ -1084,8 +1057,8 @@ void WorldSimApi::setDistortionParam(const std::string& param_name, float value,
     APIPCamera* camera = simmode_->getCamera(camera_details);
     UAirBlueprintLib::RunCommandOnGameThread([camera, &param_name, &value]() {
         camera->setDistortionParam(param_name, value);
-    },
-                                             true);
+        },
+        true);
 }
 
 std::vector<float> WorldSimApi::getDistortionParams(const CameraDetails& camera_details) const
@@ -1094,8 +1067,8 @@ std::vector<float> WorldSimApi::getDistortionParams(const CameraDetails& camera_
     const APIPCamera* camera = simmode_->getCamera(camera_details);
     UAirBlueprintLib::RunCommandOnGameThread([camera, &param_values]() {
         param_values = camera->getDistortionParams();
-    },
-                                             true);
+        },
+        true);
 
     return param_values;
 }
@@ -1212,8 +1185,8 @@ void WorldSimApi::addDetectionFilterMeshName(ImageCaptureBase::ImageType image_t
 
     UAirBlueprintLib::RunCommandOnGameThread([camera, image_type, &mesh_name, annotation_name]() {
         camera->getDetectionComponent(image_type, false, annotation_name)->addMeshName(mesh_name);
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::setDetectionFilterRadius(ImageCaptureBase::ImageType image_type, float radius_cm, const CameraDetails& camera_details, const std::string& annotation_name)
@@ -1222,8 +1195,8 @@ void WorldSimApi::setDetectionFilterRadius(ImageCaptureBase::ImageType image_typ
 
     UAirBlueprintLib::RunCommandOnGameThread([camera, image_type, radius_cm, annotation_name]() {
         camera->getDetectionComponent(image_type, false, annotation_name)->setFilterRadius(radius_cm);
-    },
-                                             true);
+        },
+        true);
 }
 
 void WorldSimApi::clearDetectionMeshNames(ImageCaptureBase::ImageType image_type, const CameraDetails& camera_details, const std::string& annotation_name)
@@ -1232,8 +1205,8 @@ void WorldSimApi::clearDetectionMeshNames(ImageCaptureBase::ImageType image_type
 
     UAirBlueprintLib::RunCommandOnGameThread([camera, image_type, annotation_name]() {
         camera->getDetectionComponent(image_type, false, annotation_name)->clearMeshNames();
-    },
-                                             true);
+        },
+        true);
 }
 
 std::vector<msr::airlib::DetectionInfo> WorldSimApi::getDetections(ImageCaptureBase::ImageType image_type, const CameraDetails& camera_details, const std::string& annotation_name)
@@ -1243,21 +1216,21 @@ std::vector<msr::airlib::DetectionInfo> WorldSimApi::getDetections(ImageCaptureB
     const APIPCamera* camera = simmode_->getCamera(camera_details);
     const NedTransform& ned_transform = simmode_->getVehicleSimApi(camera_details.vehicle_name)->getNedTransform();
     TMap<UMeshComponent*, FString> component_to_name_map = simmode_->GetInstanceSegmentationComponentToNameMap();
-    UAirBlueprintLib::RunCommandOnGameThread([camera, image_type, component_to_name_map , &result, &ned_transform, annotation_name]() {
+    UAirBlueprintLib::RunCommandOnGameThread([camera, image_type, component_to_name_map, &result, &ned_transform, annotation_name]() {
         const TArray<FDetectionInfo>& detections = camera->getDetectionComponent(image_type, false, annotation_name)->getDetections(component_to_name_map);
         result.resize(detections.Num());
 
         for (int i = 0; i < detections.Num(); i++) {
             result[i].name = std::string(TCHAR_TO_UTF8(*(detections[i].DetectionName)));
             Vector3r nedWrtOrigin;
-            if(detections[i].Component != nullptr)
-			{
+            if (detections[i].Component != nullptr)
+            {
                 nedWrtOrigin = ned_transform.toGlobalNed(detections[i].Component->GetComponentLocation());
-			}
-			else
-			{
+            }
+            else
+            {
                 nedWrtOrigin = ned_transform.toGlobalNed(detections[i].Actor->GetActorLocation());
-			}
+            }
             result[i].geo_point = msr::airlib::EarthUtils::nedToGeodetic(nedWrtOrigin,
                 msr::airlib::AirSimSettings::singleton().origin_geopoint);
 
@@ -1272,8 +1245,8 @@ std::vector<msr::airlib::DetectionInfo> WorldSimApi::getDetections(ImageCaptureB
 
             result[i].relative_pose = Pose(position, orientation);
         }
-    },
-                                             true);
+        },
+        true);
 
     return result;
 }

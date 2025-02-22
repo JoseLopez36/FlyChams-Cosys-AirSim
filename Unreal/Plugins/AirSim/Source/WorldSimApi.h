@@ -19,6 +19,7 @@ class WorldSimApi : public msr::airlib::WorldSimApiBase
 public:
     typedef msr::airlib::Pose Pose;
     typedef msr::airlib::Vector3r Vector3r;
+    typedef msr::airlib::Vector2r Vector2r;
     typedef msr::airlib::MeshPositionVertexBuffersResponse MeshPositionVertexBuffersResponse;
     typedef msr::airlib::ImageCaptureBase ImageCaptureBase;
     typedef msr::airlib::CameraDetails CameraDetails;
@@ -39,7 +40,7 @@ public:
     virtual void continueForFrames(uint32_t frames) override;
 
     virtual void setTimeOfDay(bool is_enabled, const std::string& start_datetime, bool is_start_datetime_dst,
-                              float celestial_clock_speed, float update_interval_secs, bool move_sun);
+        float celestial_clock_speed, float update_interval_secs, bool move_sun);
 
     virtual void enableWeather(bool enable);
     virtual void setWeatherParameter(WeatherParameter param, float val);
@@ -67,7 +68,7 @@ public:
     virtual bool addVehicle(const std::string& vehicle_name, const std::string& vehicle_type, const Pose& pose, const std::string& pawn_path = "") override;
 
     virtual void printLogMessage(const std::string& message,
-                                 const std::string& message_param = "", unsigned char severity = 0) override;
+        const std::string& message_param = "", unsigned char severity = 0) override;
 
     virtual bool setLightIntensity(const std::string& light_name, float intensity) override;
     virtual std::unique_ptr<std::vector<std::string>> swapTextures(const std::string& tag, int tex_id = 0, int component_id = 0, int material_id = 0) override;
@@ -92,19 +93,16 @@ public:
     virtual std::vector<MeshPositionVertexBuffersResponse> getMeshPositionVertexBuffers() const override;
 
     /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
-    //----------- Image APIs ----------/
-    // Multi-window image change
-    virtual void setMultiWindowImage(const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<msr::airlib::Vector2r>& crop_corners, const std::vector<msr::airlib::Vector2r>& crop_sizes) override;
-    //---------- Drawing APIs ---------/
-    // Multi-window draw
-    virtual void initMultiWindowDraw(const std::vector<int>& window_indices, const std::vector<msr::airlib::Vector2r>& window_sizes) override;
-    virtual void beginMultiWindowDraw(const std::vector<int>& window_indices) override;
-    virtual void endMultiWindowDraw(const std::vector<int>& window_indices) override;
-    virtual void drawMultiWindowPoints(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& sizes) override;
-    virtual void drawMultiWindowLineStrip(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses) override;
-    virtual void drawMultiWindowLineList(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& points, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses) override;
-    virtual void drawMultiWindowBoxes(const std::vector<int>& window_indices, const std::vector<std::vector<msr::airlib::Vector2r>>& corners, const std::vector<std::vector<msr::airlib::Vector2r>>& sizes, const std::vector<std::vector<float>>& color_rgba, const std::vector<float>& thicknesses) override;
-    virtual void drawMultiWindowTags(const std::vector<int>& window_indices, const std::vector<std::vector<std::string>>& strings, const std::vector<std::vector<msr::airlib::Vector2r>>& positions, const std::vector<std::vector<float>>& text_color_rgba, const std::vector<std::vector<float>>& fill_color_rgba, const std::vector<std::vector<float>>& frame_color_rgba, const std::vector<float>& scales) override;
+    //----------- Window APIs ----------/
+    virtual void simSetWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const Vector2r& crop_corner, const Vector2r& crop_size) override;
+    virtual void simInitWindowDraw(int window_index, int draw_width, int draw_height) override;
+    virtual void simBeginWindowDraw(int window_index) override;
+    virtual void simEndWindowDraw(int window_index) override;
+    virtual void simDrawWindowPoints(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float size) override;
+    virtual void simDrawWindowLineStrip(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float thickness) override;
+    virtual void simDrawWindowLineList(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float thickness) override;
+    virtual void simDrawWindowBoxes(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness) override;
+    virtual void simDrawWindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale) override;
     /* ------------------------------------------------------------------------------------------------------ */
 
     // Recording APIs
