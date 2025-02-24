@@ -145,6 +145,14 @@ namespace airlib
             return state;
         }
 
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        uint64_t getTimestamp() const
+        {
+            ClockBase* clock = ClockFactory::get();
+            return clock->nowNanos();
+        }
+        /* ------------------------------------------------------------------------------------------------------- */
+
         /******************* Task management Apis ********************/
         virtual void cancelLastTask() override
         {

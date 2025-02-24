@@ -140,6 +140,12 @@ namespace airlib
         (static_cast<rpc::server*>(getServer()))->bind("getMultirotorState", [&](const std::string& vehicle_name) -> MultirotorRpcLibAdaptors::MultirotorState {
             return MultirotorRpcLibAdaptors::MultirotorState(getVehicleApi(vehicle_name)->getMultirotorState());
         });
+
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        (static_cast<rpc::server*>(getServer()))->bind("getTimestamp", [&](const std::string& vehicle_name) -> uint64_t {
+            return getVehicleApi(vehicle_name)->getTimestamp();
+        });
+        /* ------------------------------------------------------------------------------------------------------- */
     }
 
     //required for pimpl

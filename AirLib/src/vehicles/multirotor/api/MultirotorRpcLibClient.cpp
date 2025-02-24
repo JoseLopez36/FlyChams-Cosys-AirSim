@@ -239,6 +239,13 @@ __pragma(warning(disable : 4239))
             return static_cast<rpc::client*>(getClient())->call("getMultirotorState", vehicle_name).as<MultirotorRpcLibAdaptors::MultirotorState>().to();
         }
 
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        uint64_t MultirotorRpcLibClient::getTimestamp(const std::string& vehicle_name)
+        {
+            return static_cast<rpc::client*>(getClient())->call("getTimestamp", vehicle_name).as<uint64_t>();
+        }
+        /* ------------------------------------------------------------------------------------------------------- */
+
         void MultirotorRpcLibClient::moveByRC(const RCData& rc_data, const std::string& vehicle_name)
         {
             static_cast<rpc::client*>(getClient())->call("moveByRC", MultirotorRpcLibAdaptors::RCData(rc_data), vehicle_name);
