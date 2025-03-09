@@ -203,6 +203,18 @@ namespace airlib
 
         std::vector<std::string> simListAssets() const;
 
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Tracking APIs ----------/
+        // Creation and removal of targets and clusters
+        void simAddTargets(const std::vector<std::string>& target_names, const std::vector<std::string>& target_types, const std::vector<Vector3r>& positions, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>());
+        void simAddClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>());
+        void simRemoveTargets(const std::vector<std::string>& target_names);
+        void simRemoveClusters(const std::vector<std::string>& cluster_names);
+        // Update of targets and clusters
+        void simUpdateTargets(const std::vector<std::string>& target_names, const std::vector<Vector3r>& positions);
+        void simUpdateClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii);
+        /* ------------------------------------------------------------------------------------------------------ */
+
     protected:
         void* getClient();
         const void* getClient() const;

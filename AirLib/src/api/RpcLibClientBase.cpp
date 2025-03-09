@@ -803,6 +803,44 @@ __pragma(warning(disable : 4239))
         {
             return &pimpl_->client;
         }
+
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Tracking APIs ----------/
+        // Creation and removal of targets and clusters
+        void RpcLibClientBase::simAddTargets(const std::vector<std::string>& target_names, const std::vector<std::string>& target_types, const std::vector<Vector3r>& positions, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>())
+        {
+            vector<RpcLibAdaptorsBase::Vector3r> conv_positions;
+            RpcLibAdaptorsBase::from(positions, conv_positions);
+            pimpl_->client.call("simAddTargets", target_names, target_types, conv_positions, highlight, highlight_color_rgba);
+        }
+        void RpcLibClientBase::simAddClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>())
+        {
+            vector<RpcLibAdaptorsBase::Vector3r> conv_centers;
+            RpcLibAdaptorsBase::from(centers, conv_centers);
+            pimpl_->client.call("simAddClusters", cluster_names, conv_centers, radii, highlight, highlight_color_rgba);
+        }
+        void RpcLibClientBase::simRemoveTargets(const std::vector<std::string>& target_names)
+        {
+            pimpl_->client.call("simRemoveTargets", target_names);
+        }
+        void RpcLibClientBase::simRemoveClusters(const std::vector<std::string>& cluster_names)
+        {
+            pimpl_->client.call("simRemoveClusters", cluster_names);
+        }
+        // Update of targets and clusters
+        void RpcLibClientBase::simUpdateTargets(const std::vector<std::string>& target_names, const std::vector<Vector3r>& positions)
+        {
+            vector<RpcLibAdaptorsBase::Vector3r> conv_positions;
+            RpcLibAdaptorsBase::from(positions, conv_positions);
+            pimpl_->client.call("simUpdateTargets", target_names, conv_positions);
+        }
+        void RpcLibClientBase::simUpdateClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii)
+        {
+            vector<RpcLibAdaptorsBase::Vector3r> conv_centers;
+            RpcLibAdaptorsBase::from(centers, conv_centers);
+            pimpl_->client.call("simUpdateClusters", cluster_names, conv_centers, radii);
+        }
+        /* ------------------------------------------------------------------------------------------------------ */
     }
 } //namespace
 #endif

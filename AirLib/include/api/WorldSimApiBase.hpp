@@ -157,6 +157,18 @@ namespace airlib
         virtual void setDetectionFilterRadius(ImageCaptureBase::ImageType image_type, float radius_cm, const CameraDetails& camera_details, const std::string& annotation_name) = 0;
         virtual void clearDetectionMeshNames(ImageCaptureBase::ImageType image_type, const CameraDetails& camera_details, const std::string& annotation_name) = 0;
         virtual std::vector<DetectionInfo> getDetections(ImageCaptureBase::ImageType image_type, const CameraDetails& camera_details, const std::string& annotation_name) = 0;
+
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Tracking APIs ----------/
+        // Creation and removal of targets and clusters
+        virtual void simAddTargets(const std::vector<std::string>& target_names, const std::vector<std::string>& target_types, const std::vector<Vector3r>& positions, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>()) = 0;
+        virtual void simAddClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>()) = 0;
+        virtual void simRemoveTargets(const std::vector<std::string>& target_names) = 0;
+        virtual void simRemoveClusters(const std::vector<std::string>& cluster_names) = 0;
+        // Update of targets and clusters
+        virtual void simUpdateTargets(const std::vector<std::string>& target_names, const std::vector<Vector3r>& positions) = 0;
+        virtual void simUpdateClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii) = 0;
+        /* ------------------------------------------------------------------------------------------------------ */
     };
 }
 } //namespace

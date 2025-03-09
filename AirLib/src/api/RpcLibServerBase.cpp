@@ -659,6 +659,38 @@ namespace airlib
 
         //if we don't suppress then server will bomb out for exceptions raised by any method
         pimpl_->server.suppress_exceptions(true);
+
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Tracking APIs ----------/
+        // Creation and removal of targets and clusters
+        pimpl_->server.bind("simAddTargets", [&](const std::vector<std::string>& target_names, const std::vector<std::string>& target_types, const std::vector<RpcLibAdaptorsBase::Vector3r>& positions, bool highlight, const std::vector<std::vector<float>>& highlight_color_rgba) -> void {
+            vector<Vector3r> conv_positions;
+            RpcLibAdaptorsBase::to(positions, conv_positions);  
+            getWorldSimApi()->simAddTargets(target_names, target_types, conv_positions, highlight, highlight_color_rgba);
+        });
+        pimpl_->server.bind("simAddClusters", [&](const std::vector<std::string>& cluster_names, const std::vector<RpcLibAdaptorsBase::Vector3r>& centers, const std::vector<float>& radii, bool highlight, const std::vector<std::vector<float>>& highlight_color_rgba) -> void {
+            vector<Vector3r> conv_centers;
+            RpcLibAdaptorsBase::to(centers, conv_centers);
+            getWorldSimApi()->simAddClusters(cluster_names, conv_centers, radii, highlight, highlight_color_rgba);
+        });
+        pimpl_->server.bind("simRemoveTargets", [&](const std::vector<std::string>& target_names) -> void {
+            getWorldSimApi()->simRemoveTargets(target_names);
+        });
+        pimpl_->server.bind("simRemoveClusters", [&](const std::vector<std::string>& cluster_names) -> void {
+            getWorldSimApi()->simRemoveClusters(cluster_names);
+        });
+        // Update of targets and clusters
+        pimpl_->server.bind("simUpdateTargets", [&](const std::vector<std::string>& target_names, const std::vector<RpcLibAdaptorsBase::Vector3r>& positions) -> void {
+            vector<Vector3r> conv_positions;
+            RpcLibAdaptorsBase::to(positions, conv_positions);
+            getWorldSimApi()->simUpdateTargets(target_names, conv_positions);
+        });
+        pimpl_->server.bind("simUpdateClusters", [&](const std::vector<std::string>& cluster_names, const std::vector<RpcLibAdaptorsBase::Vector3r>& centers, const std::vector<float>& radii) -> void {
+            vector<Vector3r> conv_centers;
+            RpcLibAdaptorsBase::to(centers, conv_centers);
+            getWorldSimApi()->simUpdateClusters(cluster_names, conv_centers, radii);
+        });
+        /* ------------------------------------------------------------------------------------------------------ */
     }
 
     //required for pimpl
