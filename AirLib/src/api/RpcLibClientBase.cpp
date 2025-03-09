@@ -807,13 +807,13 @@ __pragma(warning(disable : 4239))
         /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
         //----------- Tracking APIs ----------/
         // Creation and removal of targets and clusters
-        void RpcLibClientBase::simAddTargets(const std::vector<std::string>& target_names, const std::vector<std::string>& target_types, const std::vector<Vector3r>& positions, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>())
+        void RpcLibClientBase::simAddTargets(const std::vector<std::string>& target_names, const std::vector<std::string>& target_types, const std::vector<Vector3r>& positions, bool highlight, const std::vector<std::vector<float>>& highlight_color_rgba)
         {
             vector<RpcLibAdaptorsBase::Vector3r> conv_positions;
             RpcLibAdaptorsBase::from(positions, conv_positions);
             pimpl_->client.call("simAddTargets", target_names, target_types, conv_positions, highlight, highlight_color_rgba);
         }
-        void RpcLibClientBase::simAddClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>())
+        void RpcLibClientBase::simAddClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii, bool highlight, const std::vector<std::vector<float>>& highlight_color_rgba)
         {
             vector<RpcLibAdaptorsBase::Vector3r> conv_centers;
             RpcLibAdaptorsBase::from(centers, conv_centers);
