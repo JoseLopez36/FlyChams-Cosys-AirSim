@@ -81,15 +81,10 @@ namespace airlib
 
         /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
         //----------- Window APIs ----------/
-        virtual void simSetWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const Vector2r& crop_corner = Vector2r(0.0, 0.0), const Vector2r& crop_size = Vector2r(0.0, 0.0)) = 0;
-        virtual void simInitWindowDraw(int window_index, int draw_width, int draw_height) = 0;
-        virtual void simBeginWindowDraw(int window_index) = 0;
-        virtual void simEndWindowDraw(int window_index) = 0;
-        virtual void simDrawWindowPoints(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float size) = 0;
-        virtual void simDrawWindowLineStrip(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float thickness) = 0;
-        virtual void simDrawWindowLineList(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float thickness) = 0;
-        virtual void simDrawWindowBoxes(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness) = 0;
-        virtual void simDrawWindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale) = 0;
+        virtual void simSetWindowImages(const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<Vector2r>& crop_corners, const std::vector<Vector2r>& crop_sizes) = 0;
+        virtual void simDrawRectangles(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness) = 0;
+        virtual void simDrawStrings(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const std::vector<float>& color_rgba, float scale) = 0;
+        virtual void simFlushDrawings(int window_index) = 0;
         /* ------------------------------------------------------------------------------------------------------ */
 
         virtual std::vector<std::string> listSceneObjects(const std::string& name_regex) const = 0;

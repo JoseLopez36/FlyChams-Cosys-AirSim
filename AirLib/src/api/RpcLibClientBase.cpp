@@ -527,62 +527,32 @@ __pragma(warning(disable : 4239))
 
         /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
         //----------- Window APIs ----------/
-        void RpcLibClientBase::simSetWindowImage(int window_index, const std::string& vehicle_name, const std::string& camera_name, const Vector2r& crop_corner, const Vector2r& crop_size)
+        void RpcLibClientBase::simSetWindowImages(const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<Vector2r>& crop_corners, const std::vector<Vector2r>& crop_sizes)
         {
-            RpcLibAdaptorsBase::Vector2r conv_crop_corner(crop_corner);
-            RpcLibAdaptorsBase::Vector2r conv_crop_size(crop_size);
-            pimpl_->client.call("simSetWindowImage", window_index, vehicle_name, camera_name, conv_crop_corner, conv_crop_size);
+            vector<RpcLibAdaptorsBase::Vector2r> conv_corners, conv_sizes;
+            RpcLibAdaptorsBase::from(crop_corners, conv_corners);
+            RpcLibAdaptorsBase::from(crop_sizes, conv_sizes);
+            pimpl_->client.call("simSetWindowImages", window_indices, vehicle_names, camera_names, conv_corners, conv_sizes);
         }
 
-        void RpcLibClientBase::simInitWindowDraw(int window_index, int draw_width, int draw_height)
-        {
-            pimpl_->client.call("simInitWindowDraw", window_index, draw_width, draw_height);
-        }
-
-        void RpcLibClientBase::simBeginWindowDraw(int window_index)
-        {
-            pimpl_->client.call("simBeginWindowDraw", window_index);
-        }
-
-        void RpcLibClientBase::simEndWindowDraw(int window_index)
-        {
-            pimpl_->client.call("simEndWindowDraw", window_index);
-        }
-
-        void RpcLibClientBase::simDrawWindowPoints(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float size)
-        {
-            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
-            RpcLibAdaptorsBase::from(points, conv_points);
-            pimpl_->client.call("simDrawWindowPoints", window_index, conv_points, color_rgba, size);
-        }
-
-        void RpcLibClientBase::simDrawWindowLineStrip(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
-        {
-            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
-            RpcLibAdaptorsBase::from(points, conv_points);
-            pimpl_->client.call("simDrawWindowLineStrip", window_index, conv_points, color_rgba, thickness);
-        }
-
-        void RpcLibClientBase::simDrawWindowLineList(int window_index, const std::vector<Vector2r>& points, const std::vector<float>& color_rgba, float thickness)
-        {
-            vector<RpcLibAdaptorsBase::Vector2r> conv_points;
-            RpcLibAdaptorsBase::from(points, conv_points);
-            pimpl_->client.call("simDrawWindowLineList", window_index, conv_points, color_rgba, thickness);
-        }
-
-        void RpcLibClientBase::simDrawWindowBoxes(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness)
+        void RpcLibClientBase::simDrawRectangles(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness)
         {
             vector<RpcLibAdaptorsBase::Vector2r> conv_corners, conv_sizes;
             RpcLibAdaptorsBase::from(corners, conv_corners);
             RpcLibAdaptorsBase::from(sizes, conv_sizes);
-            pimpl_->client.call("simDrawWindowBoxes", window_index, conv_corners, conv_sizes, color_rgba, thickness);
+            pimpl_->client.call("simDrawRectangles", window_index, conv_corners, conv_sizes, color_rgba, thickness);
         }
 
-        void RpcLibClientBase::simDrawWindowTags(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const std::vector<float>& text_color_rgba, const std::vector<float>& fill_color_rgba, const std::vector<float>& frame_color_rgba, float scale)
+        void RpcLibClientBase::simDrawStrings(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const std::vector<float>& color_rgba, float scale)
         {
             vector<RpcLibAdaptorsBase::Vector2r> conv_positions;
             RpcLibAdaptorsBase::from(positions, conv_positions);
-            pimpl_->client.call("simDrawWindowTags", window_index, strings, conv_positions, text_color_rgba, fill_color_rgba, frame_color_rgba, scale);
+            pimpl_->client.call("simDrawStrings", window_index, strings, conv_positions, color_rgba, scale);
+        }
+
+        void RpcLibClientBase::simFlushDrawings(int window_index)
+        {
+            pimpl_->client.call("simFlushDrawings", window_index);
         }
         /* ------------------------------------------------------------------------------------------------------ */
 
