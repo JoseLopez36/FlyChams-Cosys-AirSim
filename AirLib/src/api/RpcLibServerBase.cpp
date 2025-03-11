@@ -540,10 +540,6 @@ namespace airlib
             RpcLibAdaptorsBase::to(positions, conv_positions);
             getWorldSimApi()->simDrawStrings(window_index, strings, conv_positions, color_rgba, scale);
         });
-
-        pimpl_->server.bind("simFlushDrawings", [&](int window_index) -> void {
-            getWorldSimApi()->simFlushDrawings(window_index);
-        });
         /* ------------------------------------------------------------------------------------------------------ */
 
         pimpl_->server.bind("simGetGroundTruthKinematics", [&](const std::string& vehicle_name) -> RpcLibAdaptorsBase::KinematicsState {
@@ -653,6 +649,12 @@ namespace airlib
         });
         pimpl_->server.bind("simRemoveClusters", [&](const std::vector<std::string>& cluster_names) -> void {
             getWorldSimApi()->simRemoveClusters(cluster_names);
+        });
+        pimpl_->server.bind("simRemoveAllTargets", [&]() -> void {
+            getWorldSimApi()->simRemoveAllTargets();
+        });
+        pimpl_->server.bind("simRemoveAllClusters", [&]() -> void {
+            getWorldSimApi()->simRemoveAllClusters();
         });
         // Update of targets and clusters
         pimpl_->server.bind("simUpdateTargets", [&](const std::vector<std::string>& target_names, const std::vector<RpcLibAdaptorsBase::Vector3r>& positions) -> void {

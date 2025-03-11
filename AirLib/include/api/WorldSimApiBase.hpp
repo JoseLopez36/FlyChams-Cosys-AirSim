@@ -84,7 +84,6 @@ namespace airlib
         virtual void simSetWindowImages(const std::vector<int>& window_indices, const std::vector<std::string>& vehicle_names, const std::vector<std::string>& camera_names, const std::vector<Vector2r>& crop_corners, const std::vector<Vector2r>& crop_sizes) = 0;
         virtual void simDrawRectangles(int window_index, const std::vector<Vector2r>& corners, const std::vector<Vector2r>& sizes, const std::vector<float>& color_rgba, float thickness) = 0;
         virtual void simDrawStrings(int window_index, const std::vector<std::string>& strings, const std::vector<Vector2r>& positions, const std::vector<float>& color_rgba, float scale) = 0;
-        virtual void simFlushDrawings(int window_index) = 0;
         /* ------------------------------------------------------------------------------------------------------ */
 
         virtual std::vector<std::string> listSceneObjects(const std::string& name_regex) const = 0;
@@ -160,6 +159,8 @@ namespace airlib
         virtual void simAddClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii, bool highlight = false, const std::vector<std::vector<float>>& highlight_color_rgba = std::vector<std::vector<float>>()) = 0;
         virtual void simRemoveTargets(const std::vector<std::string>& target_names) = 0;
         virtual void simRemoveClusters(const std::vector<std::string>& cluster_names) = 0;
+        virtual void simRemoveAllTargets() = 0;
+        virtual void simRemoveAllClusters() = 0;
         // Update of targets and clusters
         virtual void simUpdateTargets(const std::vector<std::string>& target_names, const std::vector<Vector3r>& positions) = 0;
         virtual void simUpdateClusters(const std::vector<std::string>& cluster_names, const std::vector<Vector3r>& centers, const std::vector<float>& radii) = 0;

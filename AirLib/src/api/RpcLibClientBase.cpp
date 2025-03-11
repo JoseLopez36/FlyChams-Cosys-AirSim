@@ -549,11 +549,6 @@ __pragma(warning(disable : 4239))
             RpcLibAdaptorsBase::from(positions, conv_positions);
             pimpl_->client.call("simDrawStrings", window_index, strings, conv_positions, color_rgba, scale);
         }
-
-        void RpcLibClientBase::simFlushDrawings(int window_index)
-        {
-            pimpl_->client.call("simFlushDrawings", window_index);
-        }
         /* ------------------------------------------------------------------------------------------------------ */
 
         bool RpcLibClientBase::simIsPaused() const
@@ -796,6 +791,14 @@ __pragma(warning(disable : 4239))
         void RpcLibClientBase::simRemoveClusters(const std::vector<std::string>& cluster_names)
         {
             pimpl_->client.call("simRemoveClusters", cluster_names);
+        }
+        void RpcLibClientBase::simRemoveAllTargets()
+        {
+            pimpl_->client.call("simRemoveAllTargets");
+        }
+        void RpcLibClientBase::simRemoveAllClusters()
+        {
+            pimpl_->client.call("simRemoveAllClusters");
         }
         // Update of targets and clusters
         void RpcLibClientBase::simUpdateTargets(const std::vector<std::string>& target_names, const std::vector<Vector3r>& positions)
