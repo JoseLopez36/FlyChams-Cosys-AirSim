@@ -160,6 +160,13 @@ namespace airlib
         void simEnableFocusPlane(const bool enable, const std::string& camera_name, const std::string& vehicle_name = "");
         std::string simGetCurrentFieldOfView(const std::string& camera_name, const std::string& vehicle_name = "");
         //end CinemAirSim
+
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Gimbal APIs ----------/
+        msr::airlib::Pose getCameraPose(const std::string& camera_name, const std::string& vehicle_name = "") const;
+        void setGimbalAttitude(const msr::airlib::Quaternionr& attitude, const std::string& camera_name, const std::string& vehicle_name = "");
+        /* ------------------------------------------------------------------------------------------------------- */
+
         bool simTestLineOfSightToPoint(const msr::airlib::GeoPoint& point, const std::string& vehicle_name = "");
         bool simTestLineOfSightBetweenPoints(const msr::airlib::GeoPoint& point1, const msr::airlib::GeoPoint& point2);
         vector<msr::airlib::GeoPoint> simGetWorldExtents();

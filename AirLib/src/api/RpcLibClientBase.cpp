@@ -430,6 +430,19 @@ __pragma(warning(disable : 4239))
         }
         //End CinemAirSim
 
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Gimbal APIs ----------/
+        msr::airlib::Pose RpcLibClientBase::getCameraPose(const std::string& camera_name, const std::string& vehicle_name) const
+        {
+            return pimpl_->client.call("getCameraPose", camera_name, vehicle_name).as<RpcLibAdaptorsBase::Pose>().to();
+        }
+
+        void RpcLibClientBase::setGimbalAttitude(const msr::airlib::Quaternionr& attitude, const std::string& camera_name, const std::string& vehicle_name)
+        {
+            pimpl_->client.call("setGimbalAttitude", RpcLibAdaptorsBase::Quaternionr(attitude), camera_name, vehicle_name);
+        }
+        /* ------------------------------------------------------------------------------------------------------- */
+
         // Minor TODO: consider msgpack magic for GeoPoint, so we can have one arg instead of three
         bool RpcLibClientBase::simTestLineOfSightToPoint(const msr::airlib::GeoPoint& point, const std::string& vehicle_name)
         {

@@ -220,6 +220,16 @@ namespace airlib
         });
         //end CinemAirSim
 
+        /* ------------------------------------------- FLYINGCHAMELEONS ------------------------------------------ */
+        //----------- Gimbal APIs ----------/
+        pimpl_->server.bind("getCameraPose", [&](const std::string& camera_name, const std::string& vehicle_name) -> RpcLibAdaptorsBase::Pose {
+            return RpcLibAdaptorsBase::Pose(getWorldSimApi()->getCameraPose(CameraDetails(camera_name, vehicle_name)));
+        });
+        pimpl_->server.bind("setGimbalAttitude", [&](const RpcLibAdaptorsBase::Quaternionr& attitude, const std::string& camera_name, const std::string& vehicle_name) -> void {
+            getWorldSimApi()->setGimbalAttitude(attitude.to(), CameraDetails(camera_name, vehicle_name));
+        });
+        /* ------------------------------------------------------------------------------------------------------- */
+
         pimpl_->server.bind("simTestLineOfSightToPoint", [&](const RpcLibAdaptorsBase::GeoPoint& point, const std::string& vehicle_name) -> bool {
             return getVehicleSimApi(vehicle_name)->testLineOfSightToPoint(point.to());
         });

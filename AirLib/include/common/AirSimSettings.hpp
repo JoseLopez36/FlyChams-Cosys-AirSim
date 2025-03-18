@@ -158,9 +158,29 @@ namespace airlib
 
         struct GimbalSetting
         {
-            float stabilization = 0;
-            //bool is_world_frame = false;
+            //world rotation
             Rotation rotation = Rotation::nanRotation();
+
+            //gimbal limits and dynamic parameters
+            float yaw_min = -360.0f;
+            float pitch_min = -360.0f;
+            float roll_min = -360.0f;
+
+            float yaw_max = 360.0f;
+            float pitch_max = 360.0f;
+            float roll_max = 360.0f;
+
+            float yaw_speed = 360.0f;
+            float pitch_speed = 360.0f;
+            float roll_speed = 360.0f;
+
+            float yaw_rise_time = 0.05f;
+            float pitch_rise_time = 0.05f;
+            float roll_rise_time = 0.05f;
+
+            float yaw_damping = 1.0f;
+            float pitch_damping = 1.0f;
+            float roll_damping = 1.0f;
         };
 
         struct CaptureSetting
@@ -251,6 +271,9 @@ namespace airlib
             bool external = false;                            // define if a sensor is attached to the vehicle itself(false), or to the world and is an external sensor (true)
             bool external_ned = true;                         // define if the external sensor coordinates should be reported back by the API in local NED or Unreal coordinates
             bool draw_sensor = false;
+
+            bool enable_gimbal = false;
+            bool camera_visible = false;
 
             GimbalSetting gimbal;
             CaptureSettingsMap capture_settings;
@@ -1275,9 +1298,29 @@ namespace airlib
         static GimbalSetting createGimbalSetting(const Settings& settings_json)
         {
             GimbalSetting gimbal;
-            //capture_setting.gimbal.is_world_frame = settings_json.getBool("IsWorldFrame", false);
-            gimbal.stabilization = settings_json.getFloat("Stabilization", false);
+            
             gimbal.rotation = createRotationSetting(settings_json, gimbal.rotation);
+
+            gimbal.yaw_min = settings_json.getFloat("YawMin", gimbal.yaw_min);
+            gimbal.yaw_max = settings_json.getFloat("YawMax", gimbal.yaw_max);
+            gimbal.pitch_min = settings_json.getFloat("PitchMin", gimbal.pitch_min);
+
+            gimbal.pitch_max = settings_json.getFloat("PitchMax", gimbal.pitch_max);
+            gimbal.roll_min = settings_json.getFloat("RollMin", gimbal.roll_min);
+            gimbal.roll_max = settings_json.getFloat("RollMax", gimbal.roll_max);
+
+            gimbal.yaw_speed = settings_json.getFloat("YawSpeed", gimbal.yaw_speed);
+            gimbal.pitch_speed = settings_json.getFloat("PitchSpeed", gimbal.pitch_speed);
+            gimbal.roll_speed = settings_json.getFloat("RollSpeed", gimbal.roll_speed);
+
+            gimbal.yaw_rise_time = settings_json.getFloat("YawRiseTime", gimbal.yaw_rise_time);
+            gimbal.pitch_rise_time = settings_json.getFloat("PitchRiseTime", gimbal.pitch_rise_time);
+            gimbal.roll_rise_time = settings_json.getFloat("RollRiseTime", gimbal.roll_rise_time);
+            
+            gimbal.yaw_damping = settings_json.getFloat("YawDamping", gimbal.yaw_damping);
+            gimbal.pitch_damping = settings_json.getFloat("PitchDamping", gimbal.pitch_damping);
+            gimbal.roll_damping = settings_json.getFloat("RollDamping", gimbal.roll_damping);
+
             return gimbal;
         }
 
@@ -1317,6 +1360,9 @@ namespace airlib
             setting.external = settings_json.getBool("External", setting.external);
             setting.external_ned = settings_json.getBool("ExternalLocal", setting.external_ned);
             setting.draw_sensor = settings_json.getBool("DrawSensor", setting.draw_sensor);
+
+            setting.enable_gimbal = settings_json.getBool("EnableGimbal", setting.enable_gimbal);
+            setting.camera_visible = settings_json.getBool("CameraVisible", setting.camera_visible);
 
             loadCaptureSettings(settings_json, setting.capture_settings);
             loadNoiseSettings(settings_json, setting.noise_settings);
