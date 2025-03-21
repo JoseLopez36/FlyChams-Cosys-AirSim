@@ -544,6 +544,37 @@ namespace airlib
             computeInertiaMatrix(params.inertia, params.body_box, params.rotor_poses, box_mass, motor_assembly_weight);
         }
 
+        void setupFrameFlyChamsHexacopter(Params& params)
+        {
+            //DJI S900 parameters: https://www.dji.com/es/spreading-wings-s900
+            //set up arm lengths
+            params.rotor_count = 6;
+            std::vector<real_T> arm_lengths(params.rotor_count, 0.358f);
+
+            //set up mass
+            params.mass = 3.3f;
+
+            real_T motor_assembly_weight = 0.158f; //weight with cooling fan
+            real_T box_mass = params.mass - params.rotor_count * motor_assembly_weight;
+
+            //set up rotor params
+            real_T propeller_diameter = 0.381f; //prop diameter
+            real_T propeller_height = 0.015f;   //estimation
+            params.rotor_params.calculateMaxThrust();
+
+            //set up dimensions of core body box or abdomen (not including arms).
+            params.body_box.x() = 0.272f; //center frame diameter
+            params.body_box.y() = 0.272f; //center frame diameter
+            params.body_box.z() = 0.150f; //estimation
+            real_T rotor_z = 0.050f;      //estimation
+
+            //computer rotor poses
+            initializeRotorHexX(params.rotor_poses, params.rotor_count, arm_lengths.data(), rotor_z);
+
+            //compute inertia matrix
+            computeInertiaMatrix(params.inertia, params.body_box, params.rotor_poses, box_mass, motor_assembly_weight);
+        }
+
     private:
         Params params_;
         SensorCollection sensors_; //maintains sensor type indexed collection of sensors
