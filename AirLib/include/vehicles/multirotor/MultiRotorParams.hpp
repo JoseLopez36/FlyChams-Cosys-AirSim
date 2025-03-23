@@ -552,15 +552,21 @@ namespace airlib
             std::vector<real_T> arm_lengths(params.rotor_count, 0.358f);
 
             //set up mass
-            params.mass = 3.3f;
+            params.mass = 5.371f; //3.3 kg + 0.461 kg (mounted Zenmuse X5S) + 1.610 kg (12000 mAh battery weight)
 
             real_T motor_assembly_weight = 0.158f; //weight with cooling fan
             real_T box_mass = params.mass - params.rotor_count * motor_assembly_weight;
 
             //set up rotor params
-            real_T propeller_diameter = 0.381f; //prop diameter
-            real_T propeller_height = 0.015f;   //estimation
-            params.rotor_params.calculateMaxThrust();
+            params.rotor_params.max_rpm = 6396.667f;            //default max revolutions per minute
+            params.rotor_params.C_T = 0.109919f;                //the thrust co-efficient @ 6396.667 RPM, measured by UIUC.
+            params.rotor_params.C_P = 0.040164f;                //the torque co-efficient at @ 6396.667 RPM, measured by UIUC.
+            params.rotor_params.propeller_diameter = 0.381f;    //prop diameter
+            params.rotor_params.propeller_height = 0.015f;      //estimation
+            params.rotor_params.calculateMaxThrust();           //32.2488 N
+
+            //aerodynamic adjustments (for augmented realism)
+            params.linear_drag_coefficient *= 2.0f; //make top speed more real
 
             //set up dimensions of core body box or abdomen (not including arms).
             params.body_box.x() = 0.272f; //center frame diameter

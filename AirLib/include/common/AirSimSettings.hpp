@@ -275,6 +275,9 @@ namespace airlib
             bool enable_gimbal = false;
             bool camera_visible = false;
 
+            bool enable_position_sync = true;
+            bool enable_rotation_sync = true;
+
             GimbalSetting gimbal;
             CaptureSettingsMap capture_settings;
             NoiseSettingsMap noise_settings;
@@ -1363,6 +1366,9 @@ namespace airlib
 
             setting.enable_gimbal = settings_json.getBool("EnableGimbal", setting.enable_gimbal);
             setting.camera_visible = settings_json.getBool("CameraVisible", setting.camera_visible);
+
+            setting.enable_position_sync = settings_json.getBool("EnablePositionSync", setting.enable_position_sync);
+            setting.enable_rotation_sync = settings_json.getBool("EnableRotationSync", setting.enable_rotation_sync);
 
             loadCaptureSettings(settings_json, setting.capture_settings);
             loadNoiseSettings(settings_json, setting.noise_settings);
