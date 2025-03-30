@@ -194,6 +194,7 @@ namespace airlib
             int image_type = 0;
 
             unsigned int width = 256, height = 144; //960 X 540
+            float sensor_width = 0.007; float sensor_height = 0.00393; // 7mm X 3.93mm
             float fov_degrees = Utils::nan<float>(); //90.0f
             int auto_exposure_method = -1; //histogram
             float auto_exposure_speed = Utils::nan<float>(); // 100.0f;
@@ -1403,6 +1404,8 @@ namespace airlib
         {
             capture_setting.width = settings_json.getInt("Width", capture_setting.width);
             capture_setting.height = settings_json.getInt("Height", capture_setting.height);
+            capture_setting.sensor_width = settings_json.getFloat("SensorWidth", capture_setting.sensor_width);
+            capture_setting.sensor_height = settings_json.getFloat("SensorHeight", capture_setting.sensor_height);
             capture_setting.fov_degrees = settings_json.getFloat("FOV_Degrees", capture_setting.fov_degrees);
             capture_setting.auto_exposure_speed = settings_json.getFloat("AutoExposureSpeed", capture_setting.auto_exposure_speed);
             capture_setting.auto_exposure_bias = settings_json.getFloat("AutoExposureBias", capture_setting.auto_exposure_bias);
