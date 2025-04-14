@@ -196,6 +196,7 @@ namespace airlib
             unsigned int width = 256, height = 144; //960 X 540
             float sensor_width = 0.007; float sensor_height = 0.00393; // 7mm X 3.93mm
             float fov_degrees = Utils::nan<float>(); //90.0f
+            float K1 = 0.0f; float K2 = 0.0f; float K3 = 0.0f; float P1 = 0.0f; float P2 = 0.0f;
             int auto_exposure_method = -1; //histogram
             float auto_exposure_speed = Utils::nan<float>(); // 100.0f;
             float auto_exposure_bias = Utils::nan<float>(); // 0;
@@ -1407,6 +1408,11 @@ namespace airlib
             capture_setting.sensor_width = settings_json.getFloat("SensorWidth", capture_setting.sensor_width);
             capture_setting.sensor_height = settings_json.getFloat("SensorHeight", capture_setting.sensor_height);
             capture_setting.fov_degrees = settings_json.getFloat("FOV_Degrees", capture_setting.fov_degrees);
+            capture_setting.K1 = settings_json.getFloat("K1", capture_setting.K1);
+            capture_setting.K2 = settings_json.getFloat("K2", capture_setting.K2);
+            capture_setting.K3 = settings_json.getFloat("K3", capture_setting.K3);
+            capture_setting.P1 = settings_json.getFloat("P1", capture_setting.P1);
+            capture_setting.P2 = settings_json.getFloat("P2", capture_setting.P2);
             capture_setting.auto_exposure_speed = settings_json.getFloat("AutoExposureSpeed", capture_setting.auto_exposure_speed);
             capture_setting.auto_exposure_bias = settings_json.getFloat("AutoExposureBias", capture_setting.auto_exposure_bias);
             capture_setting.auto_exposure_max_brightness = settings_json.getFloat("AutoExposureMaxBrightness", capture_setting.auto_exposure_max_brightness);

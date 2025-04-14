@@ -518,17 +518,33 @@ namespace airlib
 
             // save current manual, cruise, and max velocity parameters
             bool result = false;
-            mavlinkcom::MavLinkParameter manual_velocity_parameter, cruise_velocity_parameter, max_velocity_parameter;
+            bool result_temp = false;
+            mavlinkcom::MavLinkParameter manual_velocity_parameter, cruise_velocity_parameter, max_velocity_parameter, max_velocity_up_parameter, max_velocity_down_parameter;
             result = mav_vehicle_->getParameter("MPC_VEL_MANUAL").wait(1000, &manual_velocity_parameter);
             result = result && mav_vehicle_->getParameter("MPC_XY_CRUISE").wait(1000, &cruise_velocity_parameter);
             result = result && mav_vehicle_->getParameter("MPC_XY_VEL_MAX").wait(1000, &max_velocity_parameter);
+            result = result && mav_vehicle_->getParameter("MPC_Z_VEL_MAX_UP").wait(1000, &max_velocity_up_parameter);
+            result = result && mav_vehicle_->getParameter("MPC_Z_VEL_MAX_DN").wait(1000, &max_velocity_down_parameter);
 
             if (result) {
                 // set max velocity parameter
                 mavlinkcom::MavLinkParameter p;
                 p.name = "MPC_XY_VEL_MAX";
                 p.value = velocity;
-                mav_vehicle_->setParameter(p).wait(1000, &result);
+                mav_vehicle_->setParameter(p).wait(1000, &result_temp);
+                result = result && result_temp;
+
+                // set max velocity up parameter
+                p.name = "MPC_Z_VEL_MAX_UP";
+                p.value = velocity;
+                mav_vehicle_->setParameter(p).wait(1000, &result_temp);
+                result = result && result_temp;
+
+                // set max velocity down parameter
+                p.name = "MPC_Z_VEL_MAX_DN";
+                p.value = velocity;
+                mav_vehicle_->setParameter(p).wait(1000, &result_temp);
+                result = result && result_temp;
 
                 if (result) {
                     const Vector3r& goal_pos = Vector3r(x, y, z);
@@ -555,11 +571,15 @@ namespace airlib
                     }
 
                     // reset manual, cruise, and max velocity parameters
-                    bool result_temp = false;
-                    mav_vehicle_->setParameter(manual_velocity_parameter).wait(1000, &result);
+                    mav_vehicle_->setParameter(manual_velocity_parameter).wait(1000, &result_temp);
+                    result = result && result_temp;
                     mav_vehicle_->setParameter(cruise_velocity_parameter).wait(1000, &result_temp);
                     result = result && result_temp;
                     mav_vehicle_->setParameter(max_velocity_parameter).wait(1000, &result_temp);
+                    result = result && result_temp;
+                    mav_vehicle_->setParameter(max_velocity_up_parameter).wait(1000, &result_temp);
+                    result = result && result_temp;
+                    mav_vehicle_->setParameter(max_velocity_down_parameter).wait(1000, &result_temp);
                     result = result && result_temp;
 
                     return result && waiter.isComplete();
