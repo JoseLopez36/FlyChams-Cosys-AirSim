@@ -276,6 +276,7 @@ namespace airlib
 
             bool enable_gimbal = false;
             bool camera_visible = false;
+            float camera_scale = 1.0f;
 
             bool enable_position_sync = true;
             bool enable_rotation_sync = true;
@@ -1368,6 +1369,7 @@ namespace airlib
 
             setting.enable_gimbal = settings_json.getBool("EnableGimbal", setting.enable_gimbal);
             setting.camera_visible = settings_json.getBool("CameraVisible", setting.camera_visible);
+            setting.camera_scale = settings_json.getFloat("CameraScale", setting.camera_scale);
 
             setting.enable_position_sync = settings_json.getBool("EnablePositionSync", setting.enable_position_sync);
             setting.enable_rotation_sync = settings_json.getBool("EnableRotationSync", setting.enable_rotation_sync);
