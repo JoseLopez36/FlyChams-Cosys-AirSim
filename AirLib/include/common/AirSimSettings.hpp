@@ -156,6 +156,33 @@ namespace airlib
             }
         };
 
+        struct GimbalSetting
+        {
+            //world rotation
+            Rotation rotation = Rotation::nanRotation();
+
+            //gimbal limits and dynamic parameters
+            float yaw_min = -360.0f;
+            float pitch_min = -360.0f;
+            float roll_min = -360.0f;
+
+            float yaw_max = 360.0f;
+            float pitch_max = 360.0f;
+            float roll_max = 360.0f;
+
+            float yaw_speed = 360.0f;
+            float pitch_speed = 360.0f;
+            float roll_speed = 360.0f;
+
+            float yaw_rise_time = 0.05f;
+            float pitch_rise_time = 0.05f;
+            float roll_rise_time = 0.05f;
+
+            float yaw_damping = 1.0f;
+            float pitch_damping = 1.0f;
+            float roll_damping = 1.0f;
+        };
+
         struct CaptureSetting
         {
             //below settings_json are obtained by using Unreal console command (press ~):
@@ -247,12 +274,14 @@ namespace airlib
             bool external_ned = true;                         // define if the external sensor coordinates should be reported back by the API in local NED or Unreal coordinates
             bool draw_sensor = false;
 
+            bool enable_gimbal = false;
             bool camera_visible = false;
             float camera_scale = 1.0f;
 
             bool enable_position_sync = true;
             bool enable_rotation_sync = true;
 
+            GimbalSetting gimbal;
             CaptureSettingsMap capture_settings;
             NoiseSettingsMap noise_settings;
 
@@ -322,10 +351,6 @@ namespace airlib
         };
 
         struct WifiSetting : SensorSetting
-        {
-        };
-
-        struct GimbalSetting : SensorSetting
         {
         };
 
@@ -1276,6 +1301,35 @@ namespace airlib
             noise_setting.LensDistortionInvert = settings_json.getBool("LensDistortionInvert", noise_setting.LensDistortionInvert);
         }
 
+        static GimbalSetting createGimbalSetting(const Settings& settings_json)
+        {
+            GimbalSetting gimbal;
+            
+            gimbal.rotation = createRotationSetting(settings_json, gimbal.rotation);
+
+            gimbal.yaw_min = settings_json.getFloat("YawMin", gimbal.yaw_min);
+            gimbal.yaw_max = settings_json.getFloat("YawMax", gimbal.yaw_max);
+            gimbal.pitch_min = settings_json.getFloat("PitchMin", gimbal.pitch_min);
+
+            gimbal.pitch_max = settings_json.getFloat("PitchMax", gimbal.pitch_max);
+            gimbal.roll_min = settings_json.getFloat("RollMin", gimbal.roll_min);
+            gimbal.roll_max = settings_json.getFloat("RollMax", gimbal.roll_max);
+
+            gimbal.yaw_speed = settings_json.getFloat("YawSpeed", gimbal.yaw_speed);
+            gimbal.pitch_speed = settings_json.getFloat("PitchSpeed", gimbal.pitch_speed);
+            gimbal.roll_speed = settings_json.getFloat("RollSpeed", gimbal.roll_speed);
+
+            gimbal.yaw_rise_time = settings_json.getFloat("YawRiseTime", gimbal.yaw_rise_time);
+            gimbal.pitch_rise_time = settings_json.getFloat("PitchRiseTime", gimbal.pitch_rise_time);
+            gimbal.roll_rise_time = settings_json.getFloat("RollRiseTime", gimbal.roll_rise_time);
+            
+            gimbal.yaw_damping = settings_json.getFloat("YawDamping", gimbal.yaw_damping);
+            gimbal.pitch_damping = settings_json.getFloat("PitchDamping", gimbal.pitch_damping);
+            gimbal.roll_damping = settings_json.getFloat("RollDamping", gimbal.roll_damping);
+
+            return gimbal;
+        }
+
         static void loadUnrealEngineSetting(const msr::airlib::Settings& settings_json, UnrealEngineSetting& ue_setting)
         {
             Settings ue_settings_json;
@@ -1313,6 +1367,7 @@ namespace airlib
             setting.external_ned = settings_json.getBool("ExternalLocal", setting.external_ned);
             setting.draw_sensor = settings_json.getBool("DrawSensor", setting.draw_sensor);
 
+            setting.enable_gimbal = settings_json.getBool("EnableGimbal", setting.enable_gimbal);
             setting.camera_visible = settings_json.getBool("CameraVisible", setting.camera_visible);
             setting.camera_scale = settings_json.getFloat("CameraScale", setting.camera_scale);
 
@@ -1321,6 +1376,9 @@ namespace airlib
 
             loadCaptureSettings(settings_json, setting.capture_settings);
             loadNoiseSettings(settings_json, setting.noise_settings);
+            Settings json_gimbal;
+            if (settings_json.getChild("Gimbal", json_gimbal))
+                setting.gimbal = createGimbalSetting(json_gimbal);
 
             loadUnrealEngineSetting(settings_json, setting.ue_setting);
 
@@ -1614,10 +1672,7 @@ namespace airlib
                 sensor_setting = std::unique_ptr<SensorSetting>(new MarLocUwbSetting());
                 break;
             case SensorBase::SensorType::Wifi:
-                sensor_setting = std::unique_ptr<SensorSetting>(new WifiSetting());
-                break;
-            case SensorBase::SensorType::Gimbal:
-                sensor_setting = std::unique_ptr<SensorSetting>(new GimbalSetting());
+                sensor_setting = std::unique_ptr<SensorSetting>(new MarLocUwbSetting());
                 break;
             default:
                 throw std::invalid_argument("Unexpected sensor type");
