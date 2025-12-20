@@ -70,6 +70,24 @@ namespace airlib
             }
         };
 
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        struct StreamSetting
+        {
+            ImageType image_type;
+            int udp_port;
+            std::string camera_name;
+            std::string vehicle_name;
+
+            StreamSetting(ImageType image_type_val = ImageType::Scene, int udp_port_val = 5000, const std::string& camera_name_val = "", const std::string& vehicle_name_val = "")
+                : image_type(image_type_val)
+                , udp_port(udp_port_val)
+                , camera_name(camera_name_val)
+                , vehicle_name(vehicle_name_val)
+            {
+            }
+        };
+        /* ------------------------------------------------------------------------------------------------------ */
+
         struct AnnotatorSetting
         {
             int annotator_index;
@@ -522,6 +540,9 @@ namespace airlib
         std::string level_name = "";
 
         std::vector<SubwindowSetting> subwindow_settings;
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        std::vector<StreamSetting> stream_settings;
+        /* ------------------------------------------------------------------------------------------------------ */
         RecordingSetting recording_setting;
         TimeOfDaySetting tod_setting;
         std::vector<AnnotatorSetting> annotator_settings;
@@ -585,6 +606,9 @@ namespace airlib
             loadDefaultCameraSetting(settings_json, camera_defaults);
             loadCameraDirectorSetting(settings_json, camera_director, simmode_name);
             loadSubWindowsSettings(settings_json, subwindow_settings);
+            /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+            loadStreamsSettings(settings_json, stream_settings);
+            /* ------------------------------------------------------------------------------------------------------ */
             loadAnnotatorSettings(settings_json, annotator_settings);
             loadViewModeSettings(settings_json);
             loadPawnPaths(settings_json, pawn_paths);
@@ -1466,6 +1490,27 @@ namespace airlib
                 }
             }
         }
+
+        /* -------------------------------------------FLYINGCHAMELEONS ------------------------------------------ */
+        static void loadStreamsSettings(const Settings& settings_json, std::vector<StreamSetting>& stream_settings)
+        {
+            Settings json_parent;
+            if (settings_json.getChild("Streams", json_parent)) {
+                for (size_t child_index = 0; child_index < json_parent.size(); ++child_index) {
+                    Settings json_settings_child;
+                    if (json_parent.getChild(child_index, json_settings_child)) {
+                        StreamSetting stream_setting;
+                        stream_setting.image_type = Utils::toEnum<ImageType>(
+                            json_settings_child.getInt("ImageType", 0));
+                        stream_setting.udp_port = json_settings_child.getInt("UdpPort", 5000);
+                        stream_setting.camera_name = json_settings_child.getString("CameraName", "");
+                        stream_setting.vehicle_name = json_settings_child.getString("VehicleName", "");
+                        stream_settings.push_back(stream_setting);
+                    }
+                }
+            }
+        }
+        /* ------------------------------------------------------------------------------------------------------ */
 
         static void loadAnnotatorSettings(const Settings& settings_json, std::vector<AnnotatorSetting>& annotator_settings)
         {
