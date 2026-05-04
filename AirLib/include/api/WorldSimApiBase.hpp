@@ -123,6 +123,7 @@ namespace airlib
         virtual void setCameraFoV(float fov_degrees, const CameraDetails& camera_details) = 0;
         virtual void setDistortionParam(const std::string& param_name, float value, const CameraDetails& camera_details) = 0;
         virtual std::vector<float> getDistortionParams(const CameraDetails& camera_details) const = 0;
+        virtual bool setAgentCamerasActive(const std::string& vehicle_name, bool active) = 0;
 
         virtual std::vector<ImageCaptureBase::ImageResponse> getImages(const std::vector<ImageCaptureBase::ImageRequest>& requests,
                                                                        const std::string& vehicle_name) const = 0;

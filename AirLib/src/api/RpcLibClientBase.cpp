@@ -687,6 +687,11 @@ __pragma(warning(disable : 4239))
             pimpl_->client.call("simSetCameraFov", camera_name, fov_degrees, vehicle_name);
         }
 
+        bool RpcLibClientBase::simSetAgentCamerasActive(const std::string& vehicle_name, bool active)
+        {
+            return pimpl_->client.call("simSetAgentCamerasActive", vehicle_name, active).as<bool>();
+        }
+
         void RpcLibClientBase::simSetDistortionParam(const std::string& camera_name, const std::string& param_name, float value, const std::string& vehicle_name)
         {
             pimpl_->client.call("simSetDistortionParam", camera_name, param_name, value, vehicle_name);

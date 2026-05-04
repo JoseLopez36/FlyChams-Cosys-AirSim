@@ -425,6 +425,10 @@ namespace airlib
             getWorldSimApi()->setCameraFoV(fov_degrees, CameraDetails(camera_name, vehicle_name));
         });
 
+        pimpl_->server.bind("simSetAgentCamerasActive", [&](const std::string& vehicle_name, bool active) -> bool {
+            return getWorldSimApi()->setAgentCamerasActive(vehicle_name, active);
+        });
+
         pimpl_->server.bind("simGetCollisionInfo", [&](const std::string& vehicle_name) -> RpcLibAdaptorsBase::CollisionInfo {
             const auto& collision_info = getVehicleSimApi(vehicle_name)->getCollisionInfoAndReset();
             return RpcLibAdaptorsBase::CollisionInfo(collision_info);
