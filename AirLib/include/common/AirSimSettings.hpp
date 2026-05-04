@@ -531,6 +531,56 @@ namespace airlib
             bool move_sun = true;
         };
 
+        struct QualityFrameRateSetting
+        {
+            int max_fps = 30;
+            int camera_capture_fps = 15;
+        };
+
+        struct QualityScalabilitySetting
+        {
+            float resolution_quality = 70.0f;
+            int view_distance_quality = 1;
+            int anti_aliasing_quality = 1;
+            int shadow_quality = 0;
+            int global_illumination_quality = 0;
+            int reflection_quality = 0;
+            int post_process_quality = 0;
+            int texture_quality = 1;
+            int effects_quality = 1;
+            int foliage_quality = 0;
+            int shading_quality = 1;
+        };
+
+        struct QualityRenderingFeaturesSetting
+        {
+            bool motion_blur = false;
+            bool bloom = false;
+            bool ambient_occlusion = false;
+            bool screen_space_reflections = false;
+            bool volumetric_fog = false;
+            bool lens_flares = false;
+            bool depth_of_field = false;
+            bool contact_shadows = false;
+        };
+
+        struct QualityWorldSetting
+        {
+            float foliage_density_scale = 0.25f;
+            float grass_density_scale = 0.0f;
+            float view_distance_scale = 0.5f;
+            float shadow_distance_scale = 0.25f;
+        };
+
+        struct QualitySetting
+        {
+            bool enabled = false;
+            QualityFrameRateSetting frame_rate;
+            QualityScalabilitySetting scalability;
+            QualityRenderingFeaturesSetting rendering_features;
+            QualityWorldSetting world;
+        };
+
     private: //fields
         float settings_version_actual;
         float settings_version_minimum = 2.0f;
@@ -545,6 +595,7 @@ namespace airlib
         /* ------------------------------------------------------------------------------------------------------ */
         RecordingSetting recording_setting;
         TimeOfDaySetting tod_setting;
+        QualitySetting quality_settings;
         std::vector<AnnotatorSetting> annotator_settings;
 
         std::vector<std::string> warning_messages;
@@ -603,6 +654,7 @@ namespace airlib
 
             loadCoreSimModeSettings(settings_json, simmode_getter);
             loadLevelSettings(settings_json);
+            loadQualitySettings(settings_json, quality_settings);
             loadDefaultCameraSetting(settings_json, camera_defaults);
             loadCameraDirectorSetting(settings_json, camera_director, simmode_name);
             loadSubWindowsSettings(settings_json, subwindow_settings);
@@ -789,6 +841,57 @@ namespace airlib
         void loadLevelSettings(const Settings& settings_json)
         {
             level_name = settings_json.getString("Default Environment", "");
+        }
+
+        static void loadQualitySettings(const Settings& settings_json, QualitySetting& quality_setting)
+        {
+            quality_setting = QualitySetting();
+
+            Settings quality_json;
+            if (settings_json.getChild("QualitySettings", quality_json)) {
+                quality_setting.enabled = true;
+
+                Settings frame_rate_json;
+                if (quality_json.getChild("FrameRate", frame_rate_json)) {
+                    quality_setting.frame_rate.max_fps = frame_rate_json.getInt("MaxFPS", quality_setting.frame_rate.max_fps);
+                    quality_setting.frame_rate.camera_capture_fps = frame_rate_json.getInt("CameraCaptureFPS", quality_setting.frame_rate.camera_capture_fps);
+                }
+
+                Settings scalability_json;
+                if (quality_json.getChild("Scalability", scalability_json)) {
+                    quality_setting.scalability.resolution_quality = scalability_json.getFloat("ResolutionQuality", quality_setting.scalability.resolution_quality);
+                    quality_setting.scalability.view_distance_quality = scalability_json.getInt("ViewDistanceQuality", quality_setting.scalability.view_distance_quality);
+                    quality_setting.scalability.anti_aliasing_quality = scalability_json.getInt("AntiAliasingQuality", quality_setting.scalability.anti_aliasing_quality);
+                    quality_setting.scalability.shadow_quality = scalability_json.getInt("ShadowQuality", quality_setting.scalability.shadow_quality);
+                    quality_setting.scalability.global_illumination_quality = scalability_json.getInt("GlobalIlluminationQuality", quality_setting.scalability.global_illumination_quality);
+                    quality_setting.scalability.reflection_quality = scalability_json.getInt("ReflectionQuality", quality_setting.scalability.reflection_quality);
+                    quality_setting.scalability.post_process_quality = scalability_json.getInt("PostProcessQuality", quality_setting.scalability.post_process_quality);
+                    quality_setting.scalability.texture_quality = scalability_json.getInt("TextureQuality", quality_setting.scalability.texture_quality);
+                    quality_setting.scalability.effects_quality = scalability_json.getInt("EffectsQuality", quality_setting.scalability.effects_quality);
+                    quality_setting.scalability.foliage_quality = scalability_json.getInt("FoliageQuality", quality_setting.scalability.foliage_quality);
+                    quality_setting.scalability.shading_quality = scalability_json.getInt("ShadingQuality", quality_setting.scalability.shading_quality);
+                }
+
+                Settings rendering_features_json;
+                if (quality_json.getChild("RenderingFeatures", rendering_features_json)) {
+                    quality_setting.rendering_features.motion_blur = rendering_features_json.getBool("MotionBlur", quality_setting.rendering_features.motion_blur);
+                    quality_setting.rendering_features.bloom = rendering_features_json.getBool("Bloom", quality_setting.rendering_features.bloom);
+                    quality_setting.rendering_features.ambient_occlusion = rendering_features_json.getBool("AmbientOcclusion", quality_setting.rendering_features.ambient_occlusion);
+                    quality_setting.rendering_features.screen_space_reflections = rendering_features_json.getBool("ScreenSpaceReflections", quality_setting.rendering_features.screen_space_reflections);
+                    quality_setting.rendering_features.volumetric_fog = rendering_features_json.getBool("VolumetricFog", quality_setting.rendering_features.volumetric_fog);
+                    quality_setting.rendering_features.lens_flares = rendering_features_json.getBool("LensFlares", quality_setting.rendering_features.lens_flares);
+                    quality_setting.rendering_features.depth_of_field = rendering_features_json.getBool("DepthOfField", quality_setting.rendering_features.depth_of_field);
+                    quality_setting.rendering_features.contact_shadows = rendering_features_json.getBool("ContactShadows", quality_setting.rendering_features.contact_shadows);
+                }
+
+                Settings world_json;
+                if (quality_json.getChild("World", world_json)) {
+                    quality_setting.world.foliage_density_scale = world_json.getFloat("FoliageDensityScale", quality_setting.world.foliage_density_scale);
+                    quality_setting.world.grass_density_scale = world_json.getFloat("GrassDensityScale", quality_setting.world.grass_density_scale);
+                    quality_setting.world.view_distance_scale = world_json.getFloat("ViewDistanceScale", quality_setting.world.view_distance_scale);
+                    quality_setting.world.shadow_distance_scale = world_json.getFloat("ShadowDistanceScale", quality_setting.world.shadow_distance_scale);
+                }
+            }
         }
 
         void loadViewModeSettings(const Settings& settings_json)
