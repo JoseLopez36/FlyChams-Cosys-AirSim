@@ -75,12 +75,16 @@ namespace airlib
         {
             ImageType image_type;
             int udp_port;
+            int rtsp_port;
+            std::string rtsp_path;
             std::string camera_name;
             std::string vehicle_name;
 
-            StreamSetting(ImageType image_type_val = ImageType::Scene, int udp_port_val = 5000, const std::string& camera_name_val = "", const std::string& vehicle_name_val = "")
+            StreamSetting(ImageType image_type_val = ImageType::Scene, int udp_port_val = 5000, int rtsp_port_val = 8554, const std::string& rtsp_path_val = "", const std::string& camera_name_val = "", const std::string& vehicle_name_val = "")
                 : image_type(image_type_val)
                 , udp_port(udp_port_val)
+                , rtsp_port(rtsp_port_val)
+                , rtsp_path(rtsp_path_val)
                 , camera_name(camera_name_val)
                 , vehicle_name(vehicle_name_val)
             {
@@ -1606,6 +1610,8 @@ namespace airlib
                         stream_setting.image_type = Utils::toEnum<ImageType>(
                             json_settings_child.getInt("ImageType", 0));
                         stream_setting.udp_port = json_settings_child.getInt("UdpPort", 5000);
+                        stream_setting.rtsp_port = json_settings_child.getInt("RtspPort", 8554);
+                        stream_setting.rtsp_path = json_settings_child.getString("RtspPath", "");
                         stream_setting.camera_name = json_settings_child.getString("CameraName", "");
                         stream_setting.vehicle_name = json_settings_child.getString("VehicleName", "");
                         stream_settings.push_back(stream_setting);
