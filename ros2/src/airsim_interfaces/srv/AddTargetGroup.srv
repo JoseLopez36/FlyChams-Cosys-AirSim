@@ -1,0 +1,7 @@
+string[] target_names
+string[] target_types
+geometry_msgs/Point[] positions
+bool highlight
+std_msgs/ColorRGBA[] highlight_color_rgba
+---
+bool success

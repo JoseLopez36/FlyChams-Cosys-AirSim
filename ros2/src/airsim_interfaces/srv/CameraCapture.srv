@@ -1,3 +1,4 @@
 string vehicle_name
+bool active
 ---
 bool success

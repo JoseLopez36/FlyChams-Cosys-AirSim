@@ -1,0 +1,7 @@
+string[] cluster_names
+geometry_msgs/Point[] centers
+float32[] radii
+bool highlight
+std_msgs/ColorRGBA[] highlight_color_rgba
+---
+bool success
