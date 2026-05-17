@@ -12,28 +12,15 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  # Global services and messages
-  "srv/LoadLevel.srv"
+  # Global simulation control
   "srv/Reset.srv"
   "srv/Run.srv"
   "srv/Pause.srv"
-  # Vehicle services and messages
-  "srv/Takeoff.srv"
-  "srv/Land.srv"
-  "srv/Hover.srv"
-  "srv/EnableControl.srv"
-  "srv/ArmDisarm.srv"
+  # Vehicle camera control
   "srv/CameraCapture.srv"
-  "msg/VelCmd.msg"
-  "msg/PosCmd.msg"
-  "msg/CameraFovCmd.msg"
   "msg/GimbalAngleCmd.msg"
-  "msg/CameraOrientation.msg"
-  # Window services and messages
-  "msg/WindowImageCmdGroup.msg"
-  "msg/WindowRectangleCmd.msg"
-  "msg/WindowStringCmd.msg"
-  # Tracking services and messages
+  "msg/CameraFovCmd.msg"
+  # Target/cluster management
   "srv/AddTargetGroup.srv"
   "srv/AddClusterGroup.srv"
   "srv/RemoveAllTargets.srv"

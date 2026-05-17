@@ -11,13 +11,11 @@ int main(int argc, char** argv)
     std::shared_ptr<rclcpp::Node> nh = rclcpp::Node::make_shared("airsim_node", node_options);
     std::string host_ip;
     uint16_t host_port = 41451;
-    bool broadcast_transforms = false;
     nh->get_parameter("host_ip", host_ip);
     nh->get_parameter("host_port", host_port);
-    nh->get_parameter("broadcast_transforms", broadcast_transforms);
-    airsim_wrapper::AirsimWrapper airsim_wrapper(nh, host_ip, host_port, broadcast_transforms);
+    airsim_wrapper::AirsimWrapper airsim_wrapper(nh, host_ip, host_port);
 
-    rclcpp::executors::MultiThreadedExecutor executor;
+    rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(nh);
     executor.spin();
 
