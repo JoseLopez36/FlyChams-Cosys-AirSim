@@ -122,7 +122,8 @@ namespace airsim_wrapper
 
     void AirsimWrapper::gimbal_angle_cmd_cb(const airsim_interfaces::msg::GimbalAngleCmd::SharedPtr gimbal_angle_cmd_msg)
     {
-        RCLCPP_INFO_THROTTLE(nh_->get_logger(), *nh_->get_clock(), 1000.0, "Received gimbal angle command");
+        const auto& vehicle_name = gimbal_angle_cmd_msg->vehicle_name;
+        RCLCPP_INFO_THROTTLE(nh_->get_logger(), *nh_->get_clock(), 1000.0, "Received gimbal angle command for vehicle %s", vehicle_name.c_str());
 
         const auto& camera_names = gimbal_angle_cmd_msg->camera_names;
         const auto& orientations = gimbal_angle_cmd_msg->orientations;
@@ -130,7 +131,7 @@ namespace airsim_wrapper
         {
             for (size_t i = 0; i < camera_names.size(); i++)
             {
-                client_set_gimbal_attitude(get_gimbal_quat(orientations[i]), camera_names[i], "");
+                client_set_gimbal_attitude(get_gimbal_quat(orientations[i]), camera_names[i], vehicle_name);
             }
         }
         catch (rpc::rpc_error& e) {
@@ -141,7 +142,8 @@ namespace airsim_wrapper
 
     void AirsimWrapper::camera_fov_cmd_cb(const airsim_interfaces::msg::CameraFovCmd::SharedPtr camera_fov_cmd_msg)
     {
-        RCLCPP_INFO_THROTTLE(nh_->get_logger(), *nh_->get_clock(), 1000.0, "Received camera fov command");
+        const auto& vehicle_name = camera_fov_cmd_msg->vehicle_name;
+        RCLCPP_INFO_THROTTLE(nh_->get_logger(), *nh_->get_clock(), 1000.0, "Received camera fov command for vehicle %s", vehicle_name.c_str());
 
         const auto& camera_names = camera_fov_cmd_msg->camera_names;
         const auto& fov_cmds = camera_fov_cmd_msg->fovs;
@@ -149,7 +151,7 @@ namespace airsim_wrapper
         {
             for (size_t i = 0; i < camera_names.size(); i++)
             {
-                client_set_camera_fov(camera_names[i], fov_cmds[i], "");
+                client_set_camera_fov(camera_names[i], fov_cmds[i], vehicle_name);
             }
         }
         catch (rpc::rpc_error& e) {
